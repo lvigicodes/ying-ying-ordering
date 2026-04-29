@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ying Ying Tea House - Ordering System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2d5016 0%, #1a3d0f 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            padding: 60px 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .logo {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #2d5016;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        p {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+        
+        .links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 18px 30px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            transition: transform 0.2s;
+            display: block;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-customer {
+            background: #ff6b35;
+            color: white;
+        }
+        
+        .btn-staff {
+            background: #2d5016;
+            color: white;
+        }
+        
+        .info {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+            color: #999;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🐓</div>
+        <h1>Ying Ying Tea House</h1>
+        <p>QR-Based Ordering System</p>
+        
+        <div class="links">
+            <a href="menu.html?table=1" class="btn btn-customer">
+                🍜 Customer Menu (Demo - Table 1)
+            </a>
+            
+            <a href="staff.html" class="btn btn-staff">
+                👨‍💼 Staff Dashboard
+            </a>
+        </div>
+        
+        <div class="info">
+            Built with Claude AI<br>
+            PIN for staff login: 9875
+        </div>
+    </div>
+</body>
+</html>
