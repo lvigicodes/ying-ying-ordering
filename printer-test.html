@@ -86,106 +86,12 @@
             transform: translateY(-2px);
         }
 
-        .test-btn:active {
-            transform: translateY(0);
-        }
-
         .btn-upper {
             background: #17a2b8;
         }
 
-        .btn-upper:hover {
-            background: #138496;
-        }
-
         .btn-lower {
             background: #ff6b35;
-        }
-
-        .btn-lower:hover {
-            background: #e55a28;
-        }
-
-        /* Print styles - This is what gets sent to printer */
-        @media print {
-            body {
-                background: white;
-                margin: 0;
-                padding: 0;
-            }
-            
-            .container, .instructions, .test-buttons, .warning {
-                display: none;
-            }
-
-            .receipt {
-                display: block !important;
-            }
-        }
-
-        .receipt {
-            display: none;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            width: 300px;
-            margin: 0 auto;
-        }
-
-        .receipt-header {
-            text-align: center;
-            border-bottom: 2px dashed #333;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-        }
-
-        .receipt-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .receipt-station {
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 8px;
-            padding: 5px;
-            background: #000;
-            color: #fff;
-        }
-
-        .receipt-info {
-            margin: 15px 0;
-            font-size: 13px;
-        }
-
-        .receipt-info div {
-            margin: 5px 0;
-        }
-
-        .receipt-divider {
-            border-top: 1px solid #333;
-            margin: 10px 0;
-        }
-
-        .receipt-items {
-            border-top: 2px solid #333;
-            border-bottom: 2px solid #333;
-            padding: 10px 0;
-            margin: 15px 0;
-        }
-
-        .receipt-item {
-            margin: 8px 0;
-            font-size: 14px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .receipt-footer {
-            text-align: center;
-            padding-top: 10px;
-            font-weight: bold;
-            font-size: 15px;
         }
 
         .back-link {
@@ -199,8 +105,79 @@
             font-weight: bold;
         }
 
-        .back-link a:hover {
-            text-decoration: underline;
+        /* PRINT STYLES - FORCE RECEIPT MODE */
+        @media print {
+            @page {
+                size: 80mm auto; /* Force 80mm receipt paper width */
+                margin: 0; /* No margins */
+            }
+            
+            * {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            body {
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 80mm !important;
+            }
+            
+            .container, .instructions, .test-buttons, .warning, .logo, .back-link {
+                display: none !important;
+            }
+
+            .receipt {
+                display: block !important;
+                width: 80mm !important;
+                margin: 0 !important;
+                padding: 5mm !important;
+            }
+        }
+
+        .receipt {
+            display: none;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .receipt-line {
+            margin: 3px 0;
+        }
+
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .receipt-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .receipt-station {
+            font-size: 14px;
+            font-weight: bold;
+            background: #000;
+            color: #fff;
+            padding: 3px;
+            margin: 5px 0;
+        }
+
+        .receipt-divider {
+            border-top: 1px dashed #000;
+            margin: 8px 0;
+        }
+
+        .receipt-items {
+            margin: 10px 0;
+        }
+
+        .receipt-footer {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -210,29 +187,28 @@
         <h1>Printer Test</h1>
         
         <div class="warning">
-            ⚠️ <strong>Important:</strong> Make sure your thermal printers are connected via USB before testing!
+            ⚠️ <strong>Important:</strong> When the print dialog opens, look for "Paper Size" and select <strong>"Receipt"</strong> or <strong>"80mm"</strong>!
         </div>
 
         <div class="instructions">
             <h3>How to Test:</h3>
             <ol>
-                <li>Connect both thermal printers to your computer via USB</li>
-                <li>Click either "Test Upper Kitchen" or "Test Lower Kitchen" button below</li>
-                <li>A print dialog will appear</li>
-                <li>Select your thermal printer from the dropdown</li>
-                <li>Click "Print"</li>
-                <li>Check that the receipt prints correctly on thermal paper</li>
-                <li>Verify the layout, text size, and station label are clear</li>
+                <li>Connect thermal printer via USB</li>
+                <li>Click a test button below</li>
+                <li>In the print dialog, find <strong>"Paper Size"</strong> or <strong>"Printer Properties"</strong></li>
+                <li>Select <strong>"Receipt"</strong> or <strong>"80mm"</strong> (NOT A4 or Letter!)</li>
+                <li>Set margins to <strong>"None"</strong> or <strong>"Minimal"</strong></li>
+                <li>Click Print</li>
             </ol>
         </div>
 
         <div class="test-buttons">
             <button class="test-btn btn-upper" onclick="printUpperKitchen()">
-                🍳 Test Upper Kitchen Printer
+                🍳 Test Upper Kitchen
             </button>
             
             <button class="test-btn btn-lower" onclick="printLowerKitchen()">
-                🥟 Test Lower Kitchen Printer
+                🥟 Test Lower Kitchen
             </button>
         </div>
 
@@ -241,91 +217,73 @@
         </div>
     </div>
 
-    <!-- UPPER KITCHEN RECEIPT TEMPLATE -->
+    <!-- UPPER KITCHEN RECEIPT -->
     <div class="receipt" id="upperReceipt">
         <div class="receipt-header">
-            <div class="receipt-title">═══════════════════════════</div>
+            <div class="receipt-line">================================</div>
             <div class="receipt-title">YING YING TEA HOUSE</div>
             <div class="receipt-station">UPPER KITCHEN</div>
-            <div class="receipt-title">═══════════════════════════</div>
+            <div class="receipt-line">================================</div>
         </div>
         
-        <div class="receipt-info">
-            <div><strong>Order:</strong> YY-20260501-001</div>
-            <div><strong>Table:</strong> 5</div>
-            <div><strong>Time:</strong> 14:35</div>
-        </div>
+        <div class="receipt-line">Order: YY-20260501-001</div>
+        <div class="receipt-line">Table: 5</div>
+        <div class="receipt-line">Time: 14:35</div>
+        
+        <div class="receipt-divider"></div>
         
         <div class="receipt-items">
-            <div class="receipt-item">
-                <span>1x Curry Chicken Rice</span>
-            </div>
-            <div class="receipt-item">
-                <span>1x Beef with Vegetables</span>
-            </div>
-            <div class="receipt-item">
-                <span>2x Yang Chow Fried Rice</span>
-            </div>
-            <div class="receipt-item">
-                <span>1x Sweet & Sour Pork</span>
-            </div>
+            <div class="receipt-line">1x Curry Chicken Rice</div>
+            <div class="receipt-line">1x Beef with Vegetables</div>
+            <div class="receipt-line">2x Yang Chow Fried Rice</div>
+            <div class="receipt-line">1x Sweet & Sour Pork</div>
         </div>
         
+        <div class="receipt-divider"></div>
+        
         <div class="receipt-footer">
-            ═══════════════════════════<br>
-            TOTAL: 5 items<br>
-            ═══════════════════════════
+            <div class="receipt-line">TOTAL: 5 items</div>
+            <div class="receipt-line">================================</div>
         </div>
     </div>
 
-    <!-- LOWER KITCHEN RECEIPT TEMPLATE -->
+    <!-- LOWER KITCHEN RECEIPT -->
     <div class="receipt" id="lowerReceipt">
         <div class="receipt-header">
-            <div class="receipt-title">═══════════════════════════</div>
+            <div class="receipt-line">================================</div>
             <div class="receipt-title">YING YING TEA HOUSE</div>
             <div class="receipt-station">LOWER KITCHEN</div>
-            <div class="receipt-title">═══════════════════════════</div>
+            <div class="receipt-line">================================</div>
         </div>
         
-        <div class="receipt-info">
-            <div><strong>Order:</strong> YY-20260501-001</div>
-            <div><strong>Table:</strong> 5</div>
-            <div><strong>Time:</strong> 14:35</div>
-        </div>
+        <div class="receipt-line">Order: YY-20260501-001</div>
+        <div class="receipt-line">Table: 5</div>
+        <div class="receipt-line">Time: 14:35</div>
+        
+        <div class="receipt-divider"></div>
         
         <div class="receipt-items">
-            <div class="receipt-item">
-                <span>2x Siomai</span>
-            </div>
-            <div class="receipt-item">
-                <span>1x Milk Tea (Cold)</span>
-            </div>
-            <div class="receipt-item">
-                <span>1x Roast Duck Rice</span>
-            </div>
-            <div class="receipt-item">
-                <span>3x Asado Congee</span>
-            </div>
+            <div class="receipt-line">2x Siomai</div>
+            <div class="receipt-line">1x Milk Tea (Cold)</div>
+            <div class="receipt-line">1x Roast Duck Rice</div>
+            <div class="receipt-line">3x Asado Congee</div>
         </div>
         
+        <div class="receipt-divider"></div>
+        
         <div class="receipt-footer">
-            ═══════════════════════════<br>
-            TOTAL: 7 items<br>
-            ═══════════════════════════
+            <div class="receipt-line">TOTAL: 7 items</div>
+            <div class="receipt-line">================================</div>
         </div>
     </div>
 
     <script>
         function printUpperKitchen() {
-            // Show only upper kitchen receipt
             document.getElementById('upperReceipt').style.display = 'block';
             document.getElementById('lowerReceipt').style.display = 'none';
             
-            // Small delay to ensure receipt is rendered
             setTimeout(() => {
                 window.print();
-                
-                // Hide receipt after print dialog
                 setTimeout(() => {
                     document.getElementById('upperReceipt').style.display = 'none';
                 }, 500);
@@ -333,15 +291,11 @@
         }
 
         function printLowerKitchen() {
-            // Show only lower kitchen receipt
             document.getElementById('lowerReceipt').style.display = 'block';
             document.getElementById('upperReceipt').style.display = 'none';
             
-            // Small delay to ensure receipt is rendered
             setTimeout(() => {
                 window.print();
-                
-                // Hide receipt after print dialog
                 setTimeout(() => {
                     document.getElementById('lowerReceipt').style.display = 'none';
                 }, 500);
