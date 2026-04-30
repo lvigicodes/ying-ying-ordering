@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ying Ying - Raw Print Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2d5016 0%, #1a3d0f 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #2d5016;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .test-btn {
+            width: 100%;
+            padding: 20px;
+            background: #ff6b35;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .test-btn:hover {
+            background: #e55a28;
+        }
+
+        .instructions {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .receipt-preview {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            background: white;
+            border: 2px dashed #ccc;
+            padding: 20px;
+            margin-top: 20px;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* MINIMAL PRINT STYLES */
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+            
+            .container, .test-btn, .instructions {
+                display: none !important;
+            }
+
+            .receipt-content {
+                display: block !important;
+                margin: 0;
+                padding: 0;
+            }
+        }
+
+        .receipt-content {
+            display: none;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖨️ Minimal Print Test</h1>
+        
+        <div class="instructions">
+            <h3>Different Approach:</h3>
+            <p>This version uses minimal CSS to let the printer decide the paper size.</p>
+            <ol>
+                <li>Click test button below</li>
+                <li>In print dialog, try selecting "Fit to page" or "Scale to fit"</li>
+                <li>Or try different paper sizes</li>
+            </ol>
+        </div>
+
+        <button class="test-btn" onclick="printReceipt()">🖨️ Test Print</button>
+
+        <div class="receipt-preview">
+            <strong>Preview (what will print):</strong>
+            <div style="margin-top: 10px;">
+================================<br>
+YING YING TEA HOUSE<br>
+UPPER KITCHEN<br>
+================================<br>
+Order: YY-001<br>
+Table: 5 | Time: 14:35<br>
+--------------------------------<br>
+1x Curry Chicken Rice<br>
+1x Beef Vegetables<br>
+2x Yang Chow Rice<br>
+--------------------------------<br>
+TOTAL: 4 items<br>
+================================
+            </div>
+        </div>
+    </div>
+
+    <div class="receipt-content" id="receiptContent">
+<pre>================================
+YING YING TEA HOUSE
+UPPER KITCHEN
+================================
+Order: YY-001
+Table: 5 | Time: 14:35
+--------------------------------
+1x Curry Chicken Rice
+1x Beef with Vegetables
+2x Yang Chow Fried Rice
+1x Sweet & Sour Pork
+--------------------------------
+TOTAL: 4 items
+================================</pre>
+    </div>
+
+    <script>
+        function printReceipt() {
+            document.getElementById('receiptContent').style.display = 'block';
+            
+            setTimeout(() => {
+                window.print();
+                
+                setTimeout(() => {
+                    document.getElementById('receiptContent').style.display = 'none';
+                }, 500);
+            }, 100);
+        }
+    </script>
+</body>
+</html>
