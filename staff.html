@@ -894,14 +894,22 @@
             }
         }
 
-        // Confirm order (updates Firebase)
+        // Confirm order (updates Firebase + prints split receipts)
         async function confirmOrder(firebaseKey) {
+            const order = orders.find(o => o.firebaseKey === firebaseKey);
+            if (!order) return;
+            
+            // Update status in Firebase
             const orderRef = ref(database, `orders/${firebaseKey}`);
             await update(orderRef, {
                 status: 'confirmed',
                 'timestamps/confirmed': getCurrentManilaTimestamp()
             });
             console.log('✅ Order confirmed in Firebase');
+            
+            // Automatically print split kitchen receipts
+            printKitchenReceipts(order);
+            console.log('🖨️ Auto-printed kitchen receipts after confirmation');
         }
 
         // Mark as ready (updates Firebase)
@@ -929,7 +937,55 @@
             const order = orders.find(o => o.firebaseKey === firebaseKey);
             if (!order) return;
             
-            printKitchenReceipts(order);
+            // If pending, print single combined receipt for review
+            if (order.status === 'pending') {
+                printCombinedReceipt(order);
+            } else {
+                // For confirmed/ready/completed, print split kitchen receipts
+                printKitchenReceipts(order);
+            }
+        }
+
+        // Print combined receipt (for pending orders - staff review with customer)
+        function printCombinedReceipt(order) {
+            // Check if running in Electron app
+            if (window.electronPrinter) {
+                console.log('🖨️ Printing COMBINED receipt for review (Pending status)');
+                
+                // Print single combined receipt
+                window.electronPrinter.printCombined(order);
+                
+            } else {
+                console.log('🌐 Browser mode - showing combined receipt');
+                
+                let receipt = `═══════════════════════════════\n`;
+                receipt += `YING YING TEA HOUSE\n`;
+                receipt += `REVIEW RECEIPT (Pending)\n`;
+                receipt += `═══════════════════════════════\n`;
+                receipt += `Order: ${order.orderId}\n`;
+                receipt += `Table: ${order.tableNumber}\n`;
+                receipt += `Time: ${formatManilaTime(order.timestamps.submitted)}\n`;
+                receipt += `═══════════════════════════════\n`;
+                receipt += `ALL ITEMS:\n`;
+                receipt += `───────────────────────────────\n`;
+                
+                order.items.forEach(item => {
+                    receipt += `${item.quantity}x ${item.name}`;
+                    if (item.variation) receipt += ` (${item.variation})`;
+                    receipt += ` [${item.station.toUpperCase()}]\n`;
+                    receipt += `   ₱${item.price} x ${item.quantity} = ₱${item.price * item.quantity}\n`;
+                });
+                
+                receipt += `═══════════════════════════════\n`;
+                receipt += `TOTAL: ₱${order.total}\n`;
+                receipt += `═══════════════════════════════\n`;
+                receipt += `Please confirm order accuracy\n`;
+                receipt += `with customer before confirming.\n`;
+                receipt += `═══════════════════════════════\n`;
+                
+                console.log(receipt);
+                alert('Combined receipt printed for review!\n\n' + receipt);
+            }
         }
 
         // Print kitchen receipts (split by station)
