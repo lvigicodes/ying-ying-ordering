@@ -525,9 +525,37 @@
         </button>
     </div>
 
-    <script>
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getDatabase, ref, push, set, get } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+        // Firebase config
+        const firebaseConfig = {
+          apiKey: "AIzaSyAXb-7_W_0enqpkT3c8iEhtlTFTFet3Foc",
+          authDomain: "ying-ying-ordering.firebaseapp.com",
+          databaseURL: "https://ying-ying-ordering-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "ying-ying-ordering",
+          storageBucket: "ying-ying-ordering.firebasestorage.app",
+          messagingSenderId: "624037327199",
+          appId: "1:624037327199:web:4e9e38fd8cf16a5fdcc6ea"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Make functions and database available globally
+        window.firebaseDB = database;
+        window.firebaseRef = ref;
+        window.firebasePush = push;
+        window.firebaseSet = set;
+        window.firebaseGet = get;
+
+        console.log('🔥 Firebase connected!');
+
         const menu = [
-            // DIMSUM - ALL LOWER
+            // (Continue with your full menu array - keeping it the same)
             { id: 1, name: "Kebab", price: 130, category: "Dimsum", station: "lower", image: "🥟" },
             { id: 2, name: "Fried Wanton", price: 210, category: "Dimsum", station: "lower", image: "🥟" },
             { id: 3, name: "Fried Dumpling", price: 210, category: "Dimsum", station: "lower", image: "🥟" },
@@ -571,8 +599,6 @@
             { id: 41, name: "Chicken Taro", price: 125, category: "Dimsum", station: "lower", image: "🥟" },
             { id: 42, name: "Ham Suy Kok", price: 120, category: "Dimsum", station: "lower", image: "🥟" },
             { id: 43, name: "Raddish Cake", price: 120, category: "Dimsum", station: "lower", image: "🥘" },
-            
-            // TOPPINGS - UPPER (Ampalaya, Curry, Sweet & Sour, Hong Ma, Chopsuey)
             { id: 50, name: "Ampalaya Scrambled Egg Rice", price: 200, category: "Toppings", station: "upper", image: "🍚" },
             { id: 51, name: "Curry Fish Fillet Rice", price: 200, category: "Toppings", station: "upper", image: "🐟" },
             { id: 52, name: "Curry Chicken Rice", price: 200, category: "Toppings", station: "upper", image: "🍗" },
@@ -585,8 +611,6 @@
             { id: 75, name: "Ampalaya Beef Rice", price: 200, category: "Toppings", station: "upper", image: "🥩" },
             { id: 76, name: "Ampalaya Chicken Rice", price: 200, category: "Toppings", station: "upper", image: "🍗" },
             { id: 77, name: "Chopsuey Rice", price: 200, category: "Toppings", station: "upper", image: "🥬" },
-            
-            // TOPPINGS - LOWER (Roasted meats)
             { id: 57, name: "Tomato Pork Chop Rice", price: 200, category: "Toppings", station: "lower", image: "🥩" },
             { id: 58, name: "Chicken Mushroom Rice", price: 200, category: "Toppings", station: "lower", image: "🍗" },
             { id: 59, name: "Curry Beef Brisket Rice", price: 200, category: "Toppings", station: "lower", image: "🥩" },
@@ -603,8 +627,6 @@
             { id: 70, name: "White Chicken Roast Duck Rice", price: 230, category: "Toppings", station: "lower", image: "🍗" },
             { id: 71, name: "Lechon Kawali Asado Rice", price: 210, category: "Toppings", station: "lower", image: "🥩" },
             { id: 72, name: "Ying Ying Mixed Rice", price: 250, category: "Toppings", station: "lower", image: "🍚" },
-            
-            // ROASTING - ALL LOWER
             { id: 80, name: "Roast Peking Duck", price: null, category: "Roasting", station: "lower", variations: [
                 { size: "1 Whole", price: 2000 },
                 { size: "1/2", price: 1000 },
@@ -635,8 +657,6 @@
                 { size: "Medium", price: 550 },
                 { size: "Small", price: 320 }
             ], image: "🥩" },
-            
-            // CHICKEN - ALL UPPER
             { id: 90, name: "Buttered Chicken", price: 370, category: "Chicken", station: "upper", image: "🍗" },
             { id: 91, name: "Lemon Chicken", price: 370, category: "Chicken", station: "upper", image: "🍗" },
             { id: 92, name: "Okiam Chicken", price: 370, category: "Chicken", station: "upper", image: "🍗" },
@@ -650,8 +670,6 @@
                 { size: "Half", price: 255 }
             ], image: "🍗" },
             { id: 99, name: "Stuffed Chicken", price: 780, category: "Chicken", station: "upper", image: "🍗" },
-            
-            // SOUP - ALL UPPER
             { id: 100, name: "Hot Sour Soup", price: 320, category: "Soup", station: "upper", image: "🍲" },
             { id: 101, name: "Fish Lip Soup", price: 320, category: "Soup", station: "upper", image: "🍲" },
             { id: 102, name: "Spinach Soup", price: 320, category: "Soup", station: "upper", image: "🍲" },
@@ -667,8 +685,6 @@
             { id: 112, name: "Oyster Soup", price: 320, category: "Soup", station: "upper", image: "🍲" },
             { id: 113, name: "Sliced Pork w/ Salted Egg Soup", price: 320, category: "Soup", station: "upper", image: "🍲" },
             { id: 114, name: "Mashed Fish w/ Egg Thick Soup", price: 320, category: "Soup", station: "upper", image: "🍲" },
-            
-            // DRINKS - ALL LOWER
             { id: 120, name: "Coffee", price: null, category: "Drinks", station: "lower", variations: [
                 { size: "Hot", price: 65 },
                 { size: "Cold", price: 85 }
@@ -705,13 +721,9 @@
             { id: 135, name: "White Gulaman", price: 85, category: "Drinks", station: "lower", image: "🥤" },
             { id: 136, name: "Softdrink in Can", price: 55, category: "Drinks", station: "lower", image: "🥤" },
             { id: 137, name: "Distilled Water", price: 25, category: "Drinks", station: "lower", image: "💧" },
-            
-            // DESSERT - ALL LOWER
             { id: 140, name: "Mango Sago", price: 320, category: "Dessert", station: "lower", image: "🥭" },
             { id: 141, name: "Mango with Almond Jelly", price: 320, category: "Dessert", station: "lower", image: "🥭" },
             { id: 142, name: "Sliced Mixed Fruits", price: 620, category: "Dessert", station: "lower", image: "🍎" },
-            
-            // CONGEE - ALL LOWER
             { id: 152, name: "Roast Duck Congee", price: 210, category: "Congee", station: "lower", image: "🍚" },
             { id: 153, name: "Fish Congee", price: 185, category: "Congee", station: "lower", image: "🍚" },
             { id: 154, name: "Meat Ball Congee", price: 185, category: "Congee", station: "lower", image: "🍚" },
@@ -721,8 +733,6 @@
             { id: 158, name: "Soy Chicken Congee", price: 185, category: "Congee", station: "lower", image: "🍚" },
             { id: 159, name: "White Chicken Congee", price: 185, category: "Congee", station: "lower", image: "🍚" },
             { id: 160, name: "Asado Congee", price: 185, category: "Congee", station: "lower", image: "🍚" },
-            
-            // MAMI - ALL LOWER
             { id: 150, name: "Asado Toasted Mami", price: 195, category: "Mami", station: "lower", image: "🍜" },
             { id: 151, name: "Roast Duck Toasted Mami", price: 220, category: "Mami", station: "lower", image: "🍜" },
             { id: 161, name: "Wanton Mami", price: 185, category: "Mami", station: "lower", image: "🍜" },
@@ -733,8 +743,6 @@
             { id: 166, name: "Fish Ball Mami", price: 185, category: "Mami", station: "lower", image: "🍜" },
             { id: 167, name: "Asado Mami", price: 185, category: "Mami", station: "lower", image: "🍜" },
             { id: 168, name: "Roast Duck Mami", price: 210, category: "Mami", station: "lower", image: "🍜" },
-            
-            // SIZZLING - ALL LOWER
             { id: 170, name: "Sizzling Stuff Bean Curd", price: 370, category: "Sizzling", station: "lower", image: "🥘" },
             { id: 171, name: "Sizzling Beef Ginger Onion", price: 390, category: "Sizzling", station: "lower", image: "🥘" },
             { id: 172, name: "Sizzling 3 Kinds Vegetable", price: 370, category: "Sizzling", station: "lower", image: "🥘" },
@@ -743,8 +751,6 @@
             { id: 175, name: "Sizzling Shrimp with Bean Curd", price: 420, category: "Sizzling", station: "lower", image: "🥘" },
             { id: 176, name: "Sizzling Shrimp (Sze Chuan Style)", price: 420, category: "Sizzling", station: "lower", image: "🥘" },
             { id: 177, name: "Sizzling Fish Fillet", price: 390, category: "Sizzling", station: "lower", image: "🥘" },
-            
-            // VEGETABLE - ALL UPPER
             { id: 180, name: "Polonchay", price: 300, category: "Vegetable", station: "upper", image: "🥬" },
             { id: 181, name: "Spinach", price: 280, category: "Vegetable", station: "upper", image: "🥬" },
             { id: 182, name: "Taiwan Pechay", price: 280, category: "Vegetable", station: "upper", image: "🥬" },
@@ -755,8 +761,6 @@
             { id: 187, name: "Kaylan", price: 280, category: "Vegetable", station: "upper", image: "🥬" },
             { id: 188, name: "Brocoli Flower", price: 300, category: "Vegetable", station: "upper", image: "🥦" },
             { id: 189, name: "Celery", price: 280, category: "Vegetable", station: "upper", image: "🥬" },
-            
-            // FRIED RICE - ALL UPPER
             { id: 190, name: "Shredded Chicken Fried Rice", price: 290, category: "Fried Rice", station: "upper", image: "🍚" },
             { id: 191, name: "Two Color Fried Rice", price: 480, category: "Fried Rice", station: "upper", image: "🍚" },
             { id: 192, name: "Pineapple Fried Rice", price: 480, category: "Fried Rice", station: "upper", image: "🍚" },
@@ -768,8 +772,6 @@
             { id: 198, name: "Yang Chow Fried Rice", price: 290, category: "Fried Rice", station: "upper", image: "🍚" },
             { id: 199, name: "Minced Beef Fried Rice", price: 290, category: "Fried Rice", station: "upper", image: "🍚" },
             { id: 200, name: "Garlic Fried Rice", price: 290, category: "Fried Rice", station: "upper", image: "🍚" },
-            
-            // PORK - ALL UPPER
             { id: 210, name: "King Dao Porkchop", price: 370, category: "Pork", station: "upper", image: "🥩" },
             { id: 211, name: "Salt and Chili Porkchop", price: 370, category: "Pork", station: "upper", image: "🥩" },
             { id: 212, name: "Cutlet Porkchop", price: 370, category: "Pork", station: "upper", image: "🥩" },
@@ -782,8 +784,6 @@
             { id: 219, name: "Minced Pork with Sliced Bean", price: 370, category: "Pork", station: "upper", image: "🥩" },
             { id: 220, name: "Hong Ma Fookien Style", price: 370, category: "Pork", station: "upper", image: "🥩" },
             { id: 221, name: "Pata Tim", price: 1000, category: "Pork", station: "upper", image: "🥩" },
-            
-            // BEEF - ALL UPPER
             { id: 230, name: "Sliced Beef with Vegetables", price: 390, category: "Beef", station: "upper", image: "🥩" },
             { id: 231, name: "Sliced Beef with Oyster Sauce", price: 390, category: "Beef", station: "upper", image: "🥩" },
             { id: 232, name: "Sliced Beef with Ampalaya", price: 390, category: "Beef", station: "upper", image: "🥩" },
@@ -796,8 +796,6 @@
             { id: 239, name: "Fried Crispy Beef", price: 390, category: "Beef", station: "upper", image: "🥩" },
             { id: 240, name: "Sliced Beef Button Mushroom", price: 390, category: "Beef", station: "upper", image: "🥩" },
             { id: 241, name: "Sliced Beef Scrambled Egg", price: 390, category: "Beef", station: "upper", image: "🥩" },
-            
-            // SHRIMPS & SQUID - ALL UPPER
             { id: 250, name: "Hot Prawn Salad", price: 470, category: "Shrimps", station: "upper", image: "🦐" },
             { id: 251, name: "Crystal Prawn", price: 420, category: "Shrimps", station: "upper", image: "🦐" },
             { id: 252, name: "Saute Shrimp", price: 420, category: "Shrimps", station: "upper", image: "🦐" },
@@ -812,8 +810,6 @@
             { id: 261, name: "Boiled Squid", price: 370, category: "Squid", station: "upper", image: "🦑" },
             { id: 262, name: "Saute Squid", price: 370, category: "Squid", station: "upper", image: "🦑" },
             { id: 263, name: "Cutlet Squid", price: 370, category: "Squid", station: "upper", image: "🦑" },
-            
-            // FISH & OYSTER - ALL UPPER
             { id: 270, name: "Boiled Fish Fillet", price: 390, category: "Fish Fillet", station: "upper", image: "🐟" },
             { id: 271, name: "Fish Fillet Tausi Chili", price: 390, category: "Fish Fillet", station: "upper", image: "🐟" },
             { id: 272, name: "Saute Fish Fillet", price: 390, category: "Fish Fillet", station: "upper", image: "🐟" },
@@ -828,8 +824,6 @@
             { id: 281, name: "Oyster Cake HK Style", price: 370, category: "Oyster", station: "upper", image: "🦪" },
             { id: 282, name: "Boiled Oyster", price: 370, category: "Oyster", station: "upper", image: "🦪" },
             { id: 283, name: "Oyster Salt & Chili", price: 370, category: "Oyster", station: "upper", image: "🦪" },
-            
-            // HOTPOT - ALL UPPER
             { id: 290, name: "Spareribs Taro Hotpot", price: 370, category: "Hotpot", station: "upper", image: "🍲" },
             { id: 291, name: "Chicken Taro Hotpot", price: 370, category: "Hotpot", station: "upper", image: "🍲" },
             { id: 292, name: "Fish Fillet Beancurd Hotpot", price: 390, category: "Hotpot", station: "upper", image: "🍲" },
@@ -842,8 +836,6 @@
             { id: 299, name: "Chicken Ginger Onion Hotpot", price: 370, category: "Hotpot", station: "upper", image: "🍲" },
             { id: 300, name: "Beancurd Kawali Beancurd Hotpot", price: 370, category: "Hotpot", station: "upper", image: "🍲" },
             { id: 301, name: "Steamed Chicken Mushroom Hotpot", price: 370, category: "Hotpot", station: "upper", image: "🍲" },
-            
-            // NOODLES - ALL LOWER
             { id: 310, name: "Seafood Misua Soup", price: 220, category: "Noodles", station: "lower", image: "🍜" },
             { id: 311, name: "Cha Misua", price: 290, category: "Noodles", station: "lower", image: "🍜" },
             { id: 312, name: "Shrimp & Pork Noodles", price: 290, category: "Noodles", station: "lower", image: "🍜" },
@@ -972,17 +964,14 @@
             if (item.variations) {
                 openVariationModal(item);
             } else {
-                // Check if item already exists in cart
                 const existingItem = cart.find(cartItem => 
                     cartItem.id === item.id && !cartItem.selectedVariation
                 );
                 
                 if (existingItem) {
-                    // Increase quantity
                     existingItem.quantity++;
                     showNotification(`Added ${item.name}! (${existingItem.quantity})`);
                 } else {
-                    // Add new item
                     cart.push({ ...item, quantity: 1 });
                     showNotification(`Added ${item.name}!`);
                 }
@@ -1013,39 +1002,36 @@
             });
         }
 
-function confirmVariation() {
-    if (selectedVariation === null) {
-        alert('Please select a size');
-        return;
-    }
-    
-    const variation = currentItem.variations[selectedVariation];
-    
-    // Check if this exact item+variation combo already exists in cart
-    const existingItem = cart.find(cartItem => 
-        cartItem.id === currentItem.id && 
-        cartItem.selectedVariation && 
-        cartItem.selectedVariation.size === variation.size
-    );
-    
-    if (existingItem) {
-        // Increase quantity
-        existingItem.quantity++;
-        showNotification(`Added ${currentItem.name} (${variation.size})! (${existingItem.quantity})`);
-    } else {
-        // Add new item
-        cart.push({
-            ...currentItem,
-            selectedVariation: variation,
-            price: variation.price,
-            quantity: 1
-        });
-        showNotification(`Added ${currentItem.name} (${variation.size})!`);
-    }
-    
-    updateCartButton();
-    closeVariationModal();
-}
+        function confirmVariation() {
+            if (selectedVariation === null) {
+                alert('Please select a size');
+                return;
+            }
+            
+            const variation = currentItem.variations[selectedVariation];
+            
+            const existingItem = cart.find(cartItem => 
+                cartItem.id === currentItem.id && 
+                cartItem.selectedVariation && 
+                cartItem.selectedVariation.size === variation.size
+            );
+            
+            if (existingItem) {
+                existingItem.quantity++;
+                showNotification(`Added ${currentItem.name} (${variation.size})! (${existingItem.quantity})`);
+            } else {
+                cart.push({
+                    ...currentItem,
+                    selectedVariation: variation,
+                    price: variation.price,
+                    quantity: 1
+                });
+                showNotification(`Added ${currentItem.name} (${variation.size})!`);
+            }
+            
+            updateCartButton();
+            closeVariationModal();
+        }
 
         function closeVariationModal() {
             document.getElementById('variationModal').classList.remove('active');
@@ -1123,7 +1109,8 @@ function confirmVariation() {
             renderCartModal();
         }
 
-        function sendOrder() {
+        // FIREBASE-ENABLED SEND ORDER
+        async function sendOrder() {
             const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const timestamp = getManilaTimestamp();
             
@@ -1131,40 +1118,51 @@ function confirmVariation() {
             const dateObj = new Date(date);
             const orderDate = dateObj.toISOString().split('T')[0].replace(/-/g, '');
             
-            const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-            const todayOrders = existingOrders.filter(o => o.orderId.includes(orderDate));
-            const orderNumber = (todayOrders.length + 1).toString().padStart(3, '0');
-            const orderId = `YY-${orderDate}-${orderNumber}`;
-            
-            const order = {
-                orderId: orderId,
-                tableNumber: tableNumber,
-                items: cart.map(item => ({
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.quantity,
-                    variation: item.selectedVariation ? item.selectedVariation.size : null,
-                    station: item.station
-                })),
-                total: total,
-                status: 'pending',
-                timestamps: {
-                    submitted: timestamp,
-                    confirmed: null,
-                    ready: null,
-                    delivered: null
-                }
-            };
-            
-            existingOrders.push(order);
-            localStorage.setItem('orders', JSON.stringify(existingOrders));
-            
-            console.log('ORDER SENT:', order);
-            alert(`✅ Order #${orderId} sent! Please wait for staff confirmation.`);
-            
-            cart = [];
-            updateCartButton();
-            closeCartModal();
+            try {
+                // Get existing orders from Firebase to generate order number
+                const ordersRef = window.firebaseRef(window.firebaseDB, 'orders');
+                const snapshot = await window.firebaseGet(ordersRef);
+                const existingOrders = snapshot.exists() ? Object.values(snapshot.val()) : [];
+                
+                const todayOrders = existingOrders.filter(o => o.orderId.includes(orderDate));
+                const orderNumber = (todayOrders.length + 1).toString().padStart(3, '0');
+                const orderId = `YY-${orderDate}-${orderNumber}`;
+                
+                const order = {
+                    orderId: orderId,
+                    tableNumber: tableNumber,
+                    items: cart.map(item => ({
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity,
+                        variation: item.selectedVariation ? item.selectedVariation.size : null,
+                        station: item.station
+                    })),
+                    total: total,
+                    status: 'pending',
+                    timestamps: {
+                        submitted: timestamp,
+                        confirmed: null,
+                        ready: null,
+                        delivered: null
+                    }
+                };
+                
+                // Save to Firebase
+                const newOrderRef = window.firebasePush(ordersRef);
+                await window.firebaseSet(newOrderRef, order);
+                
+                console.log('🔥 ORDER SENT TO FIREBASE:', order);
+                alert(`✅ Order #${orderId} sent! Please wait for staff confirmation.`);
+                
+                cart = [];
+                updateCartButton();
+                closeCartModal();
+                
+            } catch (error) {
+                console.error('❌ Firebase error:', error);
+                alert('❌ Failed to send order. Please try again!');
+            }
         }
 
         function showNotification(message) {
@@ -1179,6 +1177,19 @@ function confirmVariation() {
             document.body.appendChild(notification);
             setTimeout(() => notification.remove(), 2000);
         }
+
+        // Make functions global
+        window.scrollToCategory = scrollToCategory;
+        window.toggleCategory = toggleCategory;
+        window.addToCart = addToCart;
+        window.selectVariation = selectVariation;
+        window.confirmVariation = confirmVariation;
+        window.closeVariationModal = closeVariationModal;
+        window.openCartModal = openCartModal;
+        window.closeCartModal = closeCartModal;
+        window.updateQuantity = updateQuantity;
+        window.removeFromCart = removeFromCart;
+        window.sendOrder = sendOrder;
 
         init();
     </script>

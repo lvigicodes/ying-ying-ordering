@@ -550,10 +550,32 @@
         <div class="orders-container" id="ordersContainer"></div>
     </div>
 
-    <script>
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getDatabase, ref, onValue, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+        // Firebase config
+        const firebaseConfig = {
+          apiKey: "AIzaSyAXb-7_W_0enqpkT3c8iEhtlTFTFet3Foc",
+          authDomain: "ying-ying-ordering.firebaseapp.com",
+          databaseURL: "https://ying-ying-ordering-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "ying-ying-ordering",
+          storageBucket: "ying-ying-ordering.firebasestorage.app",
+          messagingSenderId: "624037327199",
+          appId: "1:624037327199:web:4e9e38fd8cf16a5fdcc6ea"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        console.log('🔥 Firebase connected to staff dashboard!');
+
         const CORRECT_PIN = '9875';
         let currentTab = 'pending';
         let orders = [];
+        let ordersRef = null;
 
         // Manila time formatter
         function formatManilaDateTime(isoString) {
@@ -627,7 +649,6 @@
                 loadOrders();
                 updateDateTime();
                 setInterval(updateDateTime, 1000);
-                setInterval(loadOrders, 10000);
             } else {
                 errorMsg.style.display = 'block';
                 document.getElementById('pinInput').value = '';
@@ -651,11 +672,25 @@
             document.getElementById('datetime').textContent = getCurrentManilaTime();
         }
 
-        // Load orders from localStorage
+        // Load orders from Firebase (real-time)
         function loadOrders() {
-            orders = JSON.parse(localStorage.getItem('orders') || '[]');
-            updateStats();
-            renderOrders();
+            ordersRef = ref(database, 'orders');
+            
+            onValue(ordersRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    orders = Object.keys(data).map(key => ({
+                        firebaseKey: key,
+                        ...data[key]
+                    }));
+                } else {
+                    orders = [];
+                }
+                
+                console.log(`🔥 Loaded ${orders.length} orders from Firebase`);
+                updateStats();
+                renderOrders();
+            });
         }
 
         // Update stats
@@ -826,31 +861,31 @@
             switch (order.status) {
                 case 'pending':
                     return `
-                        <button class="action-btn confirm-btn" onclick="confirmOrder('${order.orderId}')">
+                        <button class="action-btn confirm-btn" onclick="confirmOrder('${order.firebaseKey}')">
                             ✓ Confirm Order
                         </button>
-                        <button class="action-btn print-btn" onclick="printOrder('${order.orderId}')">
+                        <button class="action-btn print-btn" onclick="printOrder('${order.firebaseKey}')">
                             🖨️ Print
                         </button>
                     `;
                 case 'confirmed':
                     return `
-                        <button class="action-btn ready-btn" onclick="markReady('${order.orderId}')">
+                        <button class="action-btn ready-btn" onclick="markReady('${order.firebaseKey}')">
                             ✓ Mark as Ready
                         </button>
-                        <button class="action-btn print-btn" onclick="printOrder('${order.orderId}')">
+                        <button class="action-btn print-btn" onclick="printOrder('${order.firebaseKey}')">
                             🖨️ Reprint
                         </button>
                     `;
                 case 'ready':
                     return `
-                        <button class="action-btn deliver-btn" onclick="markDelivered('${order.orderId}')">
+                        <button class="action-btn deliver-btn" onclick="markDelivered('${order.firebaseKey}')">
                             ✓ Mark as Delivered
                         </button>
                     `;
                 case 'completed':
                     return `
-                        <button class="action-btn print-btn" onclick="printOrder('${order.orderId}')">
+                        <button class="action-btn print-btn" onclick="printOrder('${order.firebaseKey}')">
                             🖨️ Print Receipt
                         </button>
                     `;
@@ -859,47 +894,39 @@
             }
         }
 
-        function confirmOrder(orderId) {
-            const order = orders.find(o => o.orderId === orderId);
-            if (!order) return;
-            
-            order.status = 'confirmed';
-            order.timestamps.confirmed = getCurrentManilaTimestamp();
-            
-            localStorage.setItem('orders', JSON.stringify(orders));
-            
-            // Don't print here - printing happens when staff clicks Print button
-            
-            loadOrders();
+        // Confirm order (updates Firebase)
+        async function confirmOrder(firebaseKey) {
+            const orderRef = ref(database, `orders/${firebaseKey}`);
+            await update(orderRef, {
+                status: 'confirmed',
+                'timestamps/confirmed': getCurrentManilaTimestamp()
+            });
+            console.log('✅ Order confirmed in Firebase');
         }
 
-        // Mark as ready
-        function markReady(orderId) {
-            const order = orders.find(o => o.orderId === orderId);
-            if (!order) return;
-            
-            order.status = 'ready';
-            order.timestamps.ready = getCurrentManilaTimestamp();
-            
-            localStorage.setItem('orders', JSON.stringify(orders));
-            loadOrders();
+        // Mark as ready (updates Firebase)
+        async function markReady(firebaseKey) {
+            const orderRef = ref(database, `orders/${firebaseKey}`);
+            await update(orderRef, {
+                status: 'ready',
+                'timestamps/ready': getCurrentManilaTimestamp()
+            });
+            console.log('✅ Order marked ready in Firebase');
         }
 
-        // Mark as delivered
-        function markDelivered(orderId) {
-            const order = orders.find(o => o.orderId === orderId);
-            if (!order) return;
-            
-            order.status = 'completed';
-            order.timestamps.delivered = getCurrentManilaTimestamp();
-            
-            localStorage.setItem('orders', JSON.stringify(orders));
-            loadOrders();
+        // Mark as delivered (updates Firebase)
+        async function markDelivered(firebaseKey) {
+            const orderRef = ref(database, `orders/${firebaseKey}`);
+            await update(orderRef, {
+                status: 'completed',
+                'timestamps/delivered': getCurrentManilaTimestamp()
+            });
+            console.log('✅ Order marked delivered in Firebase');
         }
 
         // Print order
-        function printOrder(orderId) {
-            const order = orders.find(o => o.orderId === orderId);
+        function printOrder(firebaseKey) {
+            const order = orders.find(o => o.firebaseKey === firebaseKey);
             if (!order) return;
             
             printKitchenReceipts(order);
@@ -948,6 +975,7 @@
                 alert(printSummary);
             }
         }
+
         // Allow Enter key to login
         document.getElementById('pinInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -955,10 +983,9 @@
             }
         });
 
-        updateDateTime();
-        // Export orders to CSV (Operations-focused)
+        // Export orders to CSV
         function exportOrders() {
-            const allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const allOrders = orders;
             
             if (allOrders.length === 0) {
                 alert('No orders to export!');
@@ -969,10 +996,8 @@
                 return;
             }
             
-            // CSV Header
             let csv = 'Order ID,Table,Date,Time,Status,Wait Time,Cook Time,Serve Time,Total Time,Revenue,Items\n';
             
-            // Helper function to format duration as mm:ss
             function formatDuration(startTime, endTime) {
                 if (!startTime || !endTime) return '';
                 const start = new Date(startTime);
@@ -983,7 +1008,6 @@
                 return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             }
             
-            // Helper function to format date as MMM-DD-YYYY
             function formatDate(isoString) {
                 if (!isoString) return '';
                 const date = new Date(isoString);
@@ -995,7 +1019,6 @@
                 }).replace(/,/g, '');
             }
             
-            // Helper function to format time as HH:MM
             function formatTime(isoString) {
                 if (!isoString) return '';
                 const date = new Date(isoString);
@@ -1007,13 +1030,11 @@
                 });
             }
             
-            // Add each order
             allOrders.forEach(order => {
                 const itemsList = order.items.map(item => 
                     `${item.quantity}x ${item.name}${item.variation ? ' (' + item.variation + ')' : ''}`
                 ).join(', ');
                 
-                // Calculate durations
                 const waitTime = formatDuration(order.timestamps.submitted, order.timestamps.confirmed);
                 const cookTime = formatDuration(order.timestamps.confirmed, order.timestamps.ready);
                 const serveTime = formatDuration(order.timestamps.ready, order.timestamps.delivered);
@@ -1036,7 +1057,6 @@
                 csv += row + '\n';
             });
             
-            // Add BOM for proper Excel UTF-8 handling
             const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1052,6 +1072,19 @@
             
             alert(`✅ Exported ${allOrders.length} orders to CSV!`);
         }
+
+        updateDateTime();
+
+        // Make functions global
+        window.login = login;
+        window.logout = logout;
+        window.loadOrders = loadOrders;
+        window.switchTab = switchTab;
+        window.confirmOrder = confirmOrder;
+        window.markReady = markReady;
+        window.markDelivered = markDelivered;
+        window.printOrder = printOrder;
+        window.exportOrders = exportOrders;
     </script>
 </body>
 </html>
