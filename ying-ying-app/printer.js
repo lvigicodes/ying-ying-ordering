@@ -26,12 +26,78 @@ class KitchenPrinter {
         return this.GS + '!' + String.fromCharCode(size);
     }
 
+    // Generate payment receipt (for completed orders - customer copy)
+    generatePaymentReceipt(order) {
+        const time = new Date().toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: true 
+        });
+
+        let receipt = this.init();
+        receipt += this.alignCenter();
+        receipt += '================================\n';
+        receipt += this.bold(true);
+        receipt += this.textSize(2, 2);
+        receipt += 'YING YING\n';
+        receipt += this.textSize(1, 1);
+        receipt += 'TEA HOUSE\n';
+        receipt += this.bold(false);
+        receipt += '================================\n';
+        receipt += 'PAYMENT RECEIPT\n';
+        receipt += '(Unofficial Receipt)\n';
+        receipt += '================================\n\n';
+
+        receipt += this.alignLeft();
+        receipt += `Order: ${order.orderId}\n`;
+        receipt += `Table: ${order.tableNumber}\n`;
+        receipt += `Time: ${time}\n`;
+        receipt += '--------------------------------\n';
+
+        // Show all items
+        order.items.forEach(item => {
+            // Item name line
+            let itemLine = `${item.quantity}x ${item.name}`;
+            if (item.variation) {
+                itemLine += ` (${item.variation})`;
+            }
+            receipt += itemLine + '\n';
+            
+            // Price line with better spacing
+            const priceCalc = `P${item.price} x ${item.quantity}`;
+            const total = `P${item.price * item.quantity}`;
+            const spacing = ' '.repeat(Math.max(1, 32 - priceCalc.length - total.length));
+            receipt += `  ${priceCalc}${spacing}${total}\n`;
+        });
+
+        receipt += '================================\n';
+        receipt += this.bold(true);
+        receipt += this.textSize(2, 2);
+        receipt += `TOTAL: P${order.total}\n`;
+        receipt += this.textSize(1, 1);
+        receipt += this.bold(false);
+        receipt += '================================\n';
+        receipt += this.alignCenter();
+        receipt += '\n';
+        receipt += 'This is an UNOFFICIAL receipt.\n';
+        receipt += 'Please request an official\n';
+        receipt += 'receipt from the cashier\n';
+        receipt += 'if required for tax purposes.\n';
+        receipt += '\n';
+        receipt += 'Thank you for dining with us!\n';
+        receipt += '================================\n';
+        receipt += '\n\n\n';
+        receipt += this.cut();
+
+        return receipt;
+    }
+
     // Generate combined receipt (for pending orders - staff review)
     generateCombinedReceipt(order) {
         const time = new Date().toLocaleTimeString('en-US', { 
             hour: '2-digit', 
             minute: '2-digit',
-            hour12: false 
+            hour12: true 
         });
 
         let receipt = this.init();
@@ -54,20 +120,21 @@ class KitchenPrinter {
         receipt += `Table: ${order.tableNumber}\n`;
         receipt += `Time: ${time}\n`;
         receipt += '--------------------------------\n';
-        receipt += this.bold(true);
-        receipt += 'ALL ITEMS:\n';
-        receipt += this.bold(false);
-        receipt += '--------------------------------\n';
 
-        // Show all items with station tags
+        // Show all items (NO kitchen tags for customer)
         order.items.forEach(item => {
-            let line = `${item.quantity}x ${item.name}`;
+            // Item name line
+            let itemLine = `${item.quantity}x ${item.name}`;
             if (item.variation) {
-                line += ` (${item.variation})`;
+                itemLine += ` (${item.variation})`;
             }
-            receipt += line + '\n';
-            receipt += `   P${item.price} x ${item.quantity} = P${item.price * item.quantity}\n`;
-            receipt += `   [${item.station.toUpperCase()} KITCHEN]\n`;
+            receipt += itemLine + '\n';
+            
+            // Price line with better spacing
+            const priceCalc = `P${item.price} x ${item.quantity}`;
+            const total = `P${item.price * item.quantity}`;
+            const spacing = ' '.repeat(Math.max(1, 32 - priceCalc.length - total.length));
+            receipt += `  ${priceCalc}${spacing}${total}\n`;
         });
 
         receipt += '================================\n';
@@ -77,6 +144,7 @@ class KitchenPrinter {
         receipt += this.textSize(1, 1);
         receipt += this.bold(false);
         receipt += '================================\n';
+        receipt += this.alignCenter();
         receipt += 'Please confirm order accuracy\n';
         receipt += 'with customer before confirming.\n';
         receipt += '================================\n';
@@ -98,7 +166,7 @@ class KitchenPrinter {
         const time = new Date().toLocaleTimeString('en-US', { 
             hour: '2-digit', 
             minute: '2-digit',
-            hour12: false 
+            hour12: true 
         });
 
         let receipt = this.init();
@@ -174,6 +242,26 @@ class KitchenPrinter {
                 resolve(true);
             }, 5000);
         });
+    }
+
+    // Print payment receipt (for completed orders - customer copy)
+    async printPayment(order) {
+        try {
+            const receipt = this.generatePaymentReceipt(order);
+            
+            console.log('\n💰 PRINTING PAYMENT RECEIPT:');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.log(receipt.replace(/[\x00-\x1F\x7F-\x9F]/g, ''));
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
+            // Send to upper printer (could send to either one)
+            await this.sendToPrinter(this.upperPrinterIP, this.printerPort, receipt);
+            console.log('✅ Payment receipt printed!\n');
+            return true;
+        } catch (error) {
+            console.error('❌ Print payment error:', error);
+            return false;
+        }
     }
 
     // Print combined receipt (for pending orders)

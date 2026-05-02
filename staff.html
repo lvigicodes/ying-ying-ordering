@@ -940,8 +940,13 @@
             // If pending, print single combined receipt for review
             if (order.status === 'pending') {
                 printCombinedReceipt(order);
-            } else {
-                // For confirmed/ready/completed, print split kitchen receipts
+            } 
+            // If completed, print payment receipt for customer
+            else if (order.status === 'completed') {
+                printPaymentReceipt(order);
+            }
+            // For confirmed/ready, print split kitchen receipts
+            else {
                 printKitchenReceipts(order);
             }
         }
@@ -972,7 +977,7 @@
                 order.items.forEach(item => {
                     receipt += `${item.quantity}x ${item.name}`;
                     if (item.variation) receipt += ` (${item.variation})`;
-                    receipt += ` [${item.station.toUpperCase()}]\n`;
+                    receipt += `\n`;
                     receipt += `   ₱${item.price} x ${item.quantity} = ₱${item.price * item.quantity}\n`;
                 });
                 
@@ -985,6 +990,50 @@
                 
                 console.log(receipt);
                 alert('Combined receipt printed for review!\n\n' + receipt);
+            }
+        }
+
+        // Print payment receipt (for completed orders - customer copy)
+        function printPaymentReceipt(order) {
+            // Check if running in Electron app
+            if (window.electronPrinter) {
+                console.log('🖨️ Printing PAYMENT receipt for customer (Completed status)');
+                
+                // Print payment receipt
+                window.electronPrinter.printPayment(order);
+                
+            } else {
+                console.log('🌐 Browser mode - showing payment receipt');
+                
+                let receipt = `═══════════════════════════════\n`;
+                receipt += `YING YING TEA HOUSE\n`;
+                receipt += `PAYMENT RECEIPT\n`;
+                receipt += `(Unofficial Receipt)\n`;
+                receipt += `═══════════════════════════════\n`;
+                receipt += `Order: ${order.orderId}\n`;
+                receipt += `Table: ${order.tableNumber}\n`;
+                receipt += `Time: ${formatManilaTime(order.timestamps.submitted)}\n`;
+                receipt += `───────────────────────────────\n`;
+                
+                order.items.forEach(item => {
+                    receipt += `${item.quantity}x ${item.name}`;
+                    if (item.variation) receipt += ` (${item.variation})`;
+                    receipt += `\n`;
+                    receipt += `   ₱${item.price} x ${item.quantity} = ₱${item.price * item.quantity}\n`;
+                });
+                
+                receipt += `═══════════════════════════════\n`;
+                receipt += `TOTAL: ₱${order.total}\n`;
+                receipt += `═══════════════════════════════\n`;
+                receipt += `This is an UNOFFICIAL receipt.\n`;
+                receipt += `Please request an official receipt\n`;
+                receipt += `from the cashier if required.\n`;
+                receipt += `\n`;
+                receipt += `Thank you for dining with us!\n`;
+                receipt += `═══════════════════════════════\n`;
+                
+                console.log(receipt);
+                alert('Payment receipt printed!\n\n' + receipt);
             }
         }
 
