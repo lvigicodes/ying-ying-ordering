@@ -859,7 +859,6 @@
             }
         }
 
-        // Confirm order
         function confirmOrder(orderId) {
             const order = orders.find(o => o.orderId === orderId);
             if (!order) return;
@@ -869,7 +868,7 @@
             
             localStorage.setItem('orders', JSON.stringify(orders));
             
-            printKitchenReceipts(order);
+            // Don't print here - printing happens when staff clicks Print button
             
             loadOrders();
         }
@@ -903,7 +902,7 @@
             const order = orders.find(o => o.orderId === orderId);
             if (!order) return;
             
-            alert(`Printing order ${orderId}...\n\nThis will send to receipt printer.\n(Implementation pending)`);
+            printKitchenReceipts(order);
         }
 
         // Print kitchen receipts (split by station)
