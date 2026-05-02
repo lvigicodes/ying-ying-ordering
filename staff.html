@@ -229,6 +229,51 @@
             color: white;
         }
 
+        /* SEARCH BAR */
+        .search-bar {
+            max-width: 1200px;
+            margin: 0 auto 20px;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .clear-search {
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .clear-search:hover {
+            background: #c0392b;
+        }
+
         /* ORDERS LIST */
         .orders-container {
             max-width: 1200px;
@@ -546,6 +591,16 @@
             <div class="tab" onclick="switchTab('completed')">Completed</div>
         </div>
 
+        <!-- SEARCH BAR -->
+        <div class="search-bar">
+            <input type="text" 
+                   id="orderSearch" 
+                   class="search-input" 
+                   placeholder="🔍 Search by Order ID, Table Number..." 
+                   onkeyup="searchOrders()">
+            <button class="clear-search" onclick="clearSearch()" id="clearSearchBtn" style="display: none;">✕</button>
+        </div>
+
         <!-- ORDERS CONTAINER -->
         <div class="orders-container" id="ordersContainer"></div>
     </div>
@@ -724,14 +779,29 @@
         // Render orders
         function renderOrders() {
             const container = document.getElementById('ordersContainer');
-            const filteredOrders = orders.filter(o => o.status === currentTab);
+            const searchTerm = document.getElementById('orderSearch').value.toLowerCase();
+            
+            // Filter by status
+            let filteredOrders = orders.filter(o => o.status === currentTab);
+            
+            // Filter by search term
+            if (searchTerm) {
+                filteredOrders = filteredOrders.filter(order => {
+                    return order.orderId.toLowerCase().includes(searchTerm) ||
+                           order.tableNumber.toLowerCase().includes(searchTerm);
+                });
+            }
             
             if (filteredOrders.length === 0) {
+                const message = searchTerm 
+                    ? `No orders match "${searchTerm}"`
+                    : `No ${currentTab} orders`;
+                    
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="icon">📋</div>
-                        <h2>No ${currentTab} orders</h2>
-                        <p>Orders will appear here when customers place them</p>
+                        <h2>${message}</h2>
+                        <p>${searchTerm ? 'Try a different search term' : 'Orders will appear here when customers place them'}</p>
                     </div>
                 `;
                 return;
@@ -740,7 +810,9 @@
             filteredOrders.sort((a, b) => {
                 const timeA = new Date(a.timestamps.submitted);
                 const timeB = new Date(b.timestamps.submitted);
-                return currentTab === 'pending' ? timeB - timeA : timeA - timeB;
+                // For completed orders, show latest first (reverse chronological)
+                // For other statuses (pending/confirmed/ready), show oldest first
+                return currentTab === 'completed' ? timeB - timeA : timeA - timeB;
             });
             
             container.innerHTML = filteredOrders.map(order => {
@@ -1190,6 +1262,28 @@
         window.markDelivered = markDelivered;
         window.printOrder = printOrder;
         window.exportOrders = exportOrders;
+        
+        // Search orders
+        function searchOrders() {
+            const searchInput = document.getElementById('orderSearch');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            
+            // Show/hide clear button
+            clearBtn.style.display = searchInput.value ? 'flex' : 'none';
+            
+            // Re-render with search filter
+            renderOrders();
+        }
+        
+        // Clear search
+        function clearSearch() {
+            document.getElementById('orderSearch').value = '';
+            document.getElementById('clearSearchBtn').style.display = 'none';
+            renderOrders();
+        }
+        
+        window.searchOrders = searchOrders;
+        window.clearSearch = clearSearch;
     </script>
 </body>
 </html>

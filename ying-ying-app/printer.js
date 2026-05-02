@@ -54,7 +54,7 @@ class KitchenPrinter {
         receipt += `Time: ${time}\n`;
         receipt += '--------------------------------\n';
 
-        // Show all items
+        // Show all items with better alignment
         order.items.forEach(item => {
             // Item name line
             let itemLine = `${item.quantity}x ${item.name}`;
@@ -63,26 +63,37 @@ class KitchenPrinter {
             }
             receipt += itemLine + '\n';
             
-            // Price line with better spacing
-            const priceCalc = `P${item.price} x ${item.quantity}`;
-            const total = `P${item.price * item.quantity}`;
-            const spacing = ' '.repeat(Math.max(1, 32 - priceCalc.length - total.length));
-            receipt += `  ${priceCalc}${spacing}${total}\n`;
+            // Calculate spacing to align prices on the right
+            const priceText = `P${item.price} x ${item.quantity}`;
+            const totalText = `P${item.price * item.quantity}`;
+            
+            // Thermal printer typically has 32 or 48 chars width
+            // Using 32 as safe width
+            const availableSpace = 30;
+            const textLength = priceText.length + totalText.length;
+            const spacingNeeded = Math.max(1, availableSpace - textLength);
+            const spacing = ' '.repeat(spacingNeeded);
+            
+            receipt += `  ${priceText}${spacing}${totalText}\n`;
         });
 
         receipt += '================================\n';
+        receipt += this.alignCenter();
         receipt += this.bold(true);
         receipt += this.textSize(2, 2);
         receipt += `TOTAL: P${order.total}\n`;
         receipt += this.textSize(1, 1);
         receipt += this.bold(false);
+        
+        // Calculate total quantity (not just item types)
+        const totalQuantity = order.items.reduce((sum, item) => sum + item.quantity, 0);
+        receipt += `(${totalQuantity} item${totalQuantity > 1 ? 's' : ''})\n`;
+        
         receipt += '================================\n';
-        receipt += this.alignCenter();
         receipt += '\n';
         receipt += 'This is an UNOFFICIAL receipt.\n';
         receipt += 'Please request an official\n';
-        receipt += 'receipt from the cashier\n';
-        receipt += 'if required for tax purposes.\n';
+        receipt += 'receipt from the cashier.\n';
         receipt += '\n';
         receipt += 'Thank you for dining with us!\n';
         receipt += '================================\n';
@@ -130,11 +141,18 @@ class KitchenPrinter {
             }
             receipt += itemLine + '\n';
             
-            // Price line with better spacing
-            const priceCalc = `P${item.price} x ${item.quantity}`;
-            const total = `P${item.price * item.quantity}`;
-            const spacing = ' '.repeat(Math.max(1, 32 - priceCalc.length - total.length));
-            receipt += `  ${priceCalc}${spacing}${total}\n`;
+            // Calculate spacing to align prices on the right
+            const priceText = `P${item.price} x ${item.quantity}`;
+            const totalText = `P${item.price * item.quantity}`;
+            
+            // Thermal printer typically has 32 or 48 chars width
+            // Using 30 as safe content width (leaving margins)
+            const availableSpace = 30;
+            const textLength = priceText.length + totalText.length;
+            const spacingNeeded = Math.max(1, availableSpace - textLength);
+            const spacing = ' '.repeat(spacingNeeded);
+            
+            receipt += `  ${priceText}${spacing}${totalText}\n`;
         });
 
         receipt += '================================\n';
@@ -171,24 +189,15 @@ class KitchenPrinter {
 
         let receipt = this.init();
         receipt += this.alignCenter();
-        receipt += '================================\n';
         receipt += this.bold(true);
-        receipt += this.textSize(2, 2);
-        receipt += 'YING YING\n';
         receipt += this.textSize(1, 1);
+        receipt += `Order: ${order.orderId}\n`;
         receipt += this.bold(false);
-        receipt += '================================\n';
-        receipt += this.bold(true);
-        receipt += `${stationName}\n`;
-        receipt += this.bold(false);
+        receipt += `Table: ${order.tableNumber}\n`;
+        receipt += `Time: ${time}\n`;
         receipt += '================================\n\n';
 
         receipt += this.alignLeft();
-        receipt += `Order: ${order.orderId}\n`;
-        receipt += `Table: ${order.tableNumber}\n`;
-        receipt += `Time: ${time}\n`;
-        receipt += '--------------------------------\n';
-
         items.forEach(item => {
             let line = `${item.quantity}x ${item.name}`;
             if (item.variation) {
@@ -199,10 +208,8 @@ class KitchenPrinter {
             receipt += this.bold(false);
         });
 
-        receipt += '--------------------------------\n';
-        receipt += this.bold(true);
-        receipt += `TOTAL ITEMS: ${items.length}\n`;
-        receipt += this.bold(false);
+        receipt += '\n';
+        receipt += this.alignCenter();
         receipt += '================================\n';
         receipt += '\n\n\n';
         receipt += this.cut();
