@@ -863,7 +863,29 @@
         }
 
         function getCategories() {
-            return [...new Set(menu.map(item => item.category))];
+            // Fixed category order as requested
+            return [
+                'Dimsum',
+                'Toppings',
+                'Mami',
+                'Congee',
+                'Sizzling',
+                'Vegetable',
+                'Fried Rice',
+                'Roasting',
+                'Beef',
+                'Pork',
+                'Chicken',
+                'Shrimps',
+                'Squid',
+                'Fish Fillet',
+                'Oyster',
+                'Noodles',
+                'Soup',
+                'Hotpot',
+                'Drinks',
+                'Dessert'
+            ];
         }
 
         function getManilaTimestamp() {

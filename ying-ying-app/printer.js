@@ -77,8 +77,8 @@ class KitchenPrinter {
             receipt += `  ${priceText}${spacing}${totalText}\n`;
         });
 
-        receipt += '================================\n';
         receipt += this.alignCenter();
+        receipt += '================================\n';
         receipt += this.bold(true);
         receipt += this.textSize(2, 2);
         receipt += `TOTAL: P${order.total}\n`;
