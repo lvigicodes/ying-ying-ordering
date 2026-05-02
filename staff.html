@@ -908,44 +908,47 @@
 
         // Print kitchen receipts (split by station)
         function printKitchenReceipts(order) {
-            const upperKitchen = [];
-            const lowerKitchen = [];
-            
-            order.items.forEach(item => {
-                if (item.station === 'upper') {
-                    upperKitchen.push(item);
-                } else if (item.station === 'lower') {
-                    lowerKitchen.push(item);
+            // Check if running in Electron app
+            if (window.electronPrinter) {
+                console.log('🖨️ Electron detected - printing via thermal printer!');
+                
+                // Use Electron's printer
+                window.electronPrinter.printBoth(order);
+                
+            } else {
+                console.log('🌐 Browser mode - using browser print dialog');
+                
+                // Fallback: Split items by kitchen station
+                const upperKitchen = order.items.filter(item => item.station === 'upper');
+                const lowerKitchen = order.items.filter(item => item.station === 'lower');
+                
+                console.log('═══════════════════════════════');
+                console.log('KITCHEN RECEIPT SPLIT:');
+                console.log('═══════════════════════════════');
+                console.log(`UPPER KITCHEN (${upperKitchen.length} items):`, upperKitchen.map(i => `${i.quantity}x ${i.name}`));
+                console.log(`LOWER KITCHEN (${lowerKitchen.length} items):`, lowerKitchen.map(i => `${i.quantity}x ${i.name}`));
+                console.log('═══════════════════════════════');
+                
+                let printSummary = `Kitchen receipts generated:\n\n`;
+                
+                if (upperKitchen.length > 0) {
+                    printSummary += `🖨️ UPPER KITCHEN (${upperKitchen.length} items)\n`;
+                    upperKitchen.forEach(item => {
+                        printSummary += `   ${item.quantity}x ${item.name}${item.variation ? ' (' + item.variation + ')' : ''}\n`;
+                    });
+                    printSummary += `\n`;
                 }
-            });
-            
-            console.log('═══════════════════════════════');
-            console.log('KITCHEN RECEIPT SPLIT:');
-            console.log('═══════════════════════════════');
-            console.log(`UPPER KITCHEN (${upperKitchen.length} items):`, upperKitchen.map(i => `${i.quantity}x ${i.name}`));
-            console.log(`LOWER KITCHEN (${lowerKitchen.length} items):`, lowerKitchen.map(i => `${i.quantity}x ${i.name}`));
-            console.log('═══════════════════════════════');
-            
-            let printSummary = `Kitchen receipts generated:\n\n`;
-            
-            if (upperKitchen.length > 0) {
-                printSummary += `🖨️ UPPER KITCHEN (${upperKitchen.length} items)\n`;
-                upperKitchen.forEach(item => {
-                    printSummary += `   ${item.quantity}x ${item.name}${item.variation ? ' (' + item.variation + ')' : ''}\n`;
-                });
-                printSummary += `\n`;
+                
+                if (lowerKitchen.length > 0) {
+                    printSummary += `🖨️ LOWER KITCHEN (${lowerKitchen.length} items)\n`;
+                    lowerKitchen.forEach(item => {
+                        printSummary += `   ${item.quantity}x ${item.name}${item.variation ? ' (' + item.variation + ')' : ''}\n`;
+                    });
+                }
+                
+                alert(printSummary);
             }
-            
-            if (lowerKitchen.length > 0) {
-                printSummary += `🖨️ LOWER KITCHEN (${lowerKitchen.length} items)\n`;
-                lowerKitchen.forEach(item => {
-                    printSummary += `   ${item.quantity}x ${item.name}${item.variation ? ' (' + item.variation + ')' : ''}\n`;
-                });
-            }
-            
-            alert(printSummary);
         }
-
         // Allow Enter key to login
         document.getElementById('pinInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
