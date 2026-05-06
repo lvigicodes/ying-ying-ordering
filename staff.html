@@ -267,6 +267,52 @@
             background: #218838;
         }
 
+        /* DATE FILTER */
+        .date-filter {
+            max-width: 1200px;
+            margin: 0 auto 20px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .date-filter label {
+            font-weight: bold;
+            color: #2d5016;
+        }
+
+        .date-filter input[type="date"] {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .date-filter input[type="date"]:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+
+        .clear-date-btn {
+            padding: 8px 16px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .clear-date-btn:hover {
+            background: #c0392b;
+        }
+
         /* TABS */
         .tabs {
             max-width: 1200px;
@@ -651,6 +697,15 @@
         <!-- ASSISTANCE ALERTS -->
         <div class="assistance-alerts" id="assistanceAlerts"></div>
 
+        <!-- DATE FILTER -->
+        <div class="date-filter">
+            <label>📅 Filter by Date:</label>
+            <input type="date" id="dateFilter" onchange="filterByDate()">
+            <button class="clear-date-btn" onclick="clearDateFilter()" id="clearDateBtn" style="display: none;">
+                Show All Dates
+            </button>
+        </div>
+
         <!-- TABS -->
         <div class="tabs">
             <div class="tab active" onclick="switchTab('pending')">Pending</div>
@@ -697,6 +752,7 @@
 
         const CORRECT_PIN = '9875';
         let currentTab = 'pending';
+        let selectedDate = null; // null = show all dates
         let orders = [];
         let ordersRef = null;
 
@@ -896,6 +952,17 @@
             // Filter by status
             let filteredOrders = orders.filter(o => o.status === currentTab);
             
+            // Filter by date if selected
+            if (selectedDate) {
+                filteredOrders = filteredOrders.filter(order => {
+                    const orderDate = new Date(order.timestamps.submitted)
+                        .toLocaleDateString('en-US', { timeZone: 'Asia/Manila' });
+                    const filterDate = new Date(selectedDate)
+                        .toLocaleDateString('en-US', { timeZone: 'Asia/Manila' });
+                    return orderDate === filterDate;
+                });
+            }
+            
             // Filter by search term
             if (searchTerm) {
                 filteredOrders = filteredOrders.filter(order => {
@@ -905,15 +972,28 @@
             }
             
             if (filteredOrders.length === 0) {
-                const message = searchTerm 
-                    ? `No orders match "${searchTerm}"`
-                    : `No ${currentTab} orders`;
+                let message = `No ${currentTab} orders`;
+                let subMessage = 'Orders will appear here when customers place them';
+                
+                if (selectedDate) {
+                    const formattedDate = new Date(selectedDate).toLocaleDateString('en-US', { 
+                        timeZone: 'Asia/Manila',
+                        month: 'short',
+                        day: '2-digit',
+                        year: 'numeric'
+                    });
+                    message = `No ${currentTab} orders on ${formattedDate}`;
+                    subMessage = 'Try selecting a different date';
+                } else if (searchTerm) {
+                    message = `No orders match "${searchTerm}"`;
+                    subMessage = 'Try a different search term';
+                }
                     
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="icon">📋</div>
                         <h2>${message}</h2>
-                        <p>${searchTerm ? 'Try a different search term' : 'Orders will appear here when customers place them'}</p>
+                        <p>${subMessage}</p>
                     </div>
                 `;
                 return;
@@ -1397,6 +1477,30 @@
         window.searchOrders = searchOrders;
         window.clearSearch = clearSearch;
         window.resolveAssistance = resolveAssistance;
+        
+        // Date filter functions
+        function filterByDate() {
+            const dateInput = document.getElementById('dateFilter');
+            const clearBtn = document.getElementById('clearDateBtn');
+            
+            selectedDate = dateInput.value;
+            
+            // Show/hide clear button
+            clearBtn.style.display = selectedDate ? 'block' : 'none';
+            
+            // Re-render with date filter
+            renderOrders();
+        }
+        
+        function clearDateFilter() {
+            selectedDate = null;
+            document.getElementById('dateFilter').value = '';
+            document.getElementById('clearDateBtn').style.display = 'none';
+            renderOrders();
+        }
+        
+        window.filterByDate = filterByDate;
+        window.clearDateFilter = clearDateFilter;
     </script>
 </body>
 </html>
