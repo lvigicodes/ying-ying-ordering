@@ -318,13 +318,12 @@
             padding: 12px 20px;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
             z-index: 1000;
+            display: flex;
+            gap: 10px;
         }
 
         .cart-btn {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            display: block;
+            flex: 3;
             background: #ff6b35;
             color: white;
             border: none;
@@ -333,6 +332,20 @@
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
+        }
+
+        .help-btn {
+            flex: 1;
+            background: #2d5016;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 25px;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .cart-modal {
@@ -475,6 +488,87 @@
             padding: 40px 20px;
             color: white;
         }
+
+        /* ASSISTANCE MODAL */
+        .assistance-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .assistance-modal.active {
+            display: flex;
+        }
+
+        .assistance-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 100%;
+            padding: 25px;
+        }
+
+        .assistance-content h3 {
+            margin-bottom: 20px;
+            color: #2d5016;
+            text-align: center;
+        }
+
+        .assistance-option {
+            background: #f5f5f5;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .assistance-option:hover {
+            background: #e8f5e9;
+            border-color: #2d5016;
+        }
+
+        .assistance-option .icon {
+            font-size: 30px;
+        }
+
+        .assistance-option .text {
+            flex: 1;
+        }
+
+        .assistance-option .text h4 {
+            margin-bottom: 3px;
+            color: #333;
+        }
+
+        .assistance-option .text p {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .close-assistance-btn {
+            width: 100%;
+            background: #ddd;
+            color: #666;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -523,6 +617,44 @@
         <button class="cart-btn" id="cartBtn" onclick="openCartModal()">
             🛒 Cart (0 items) - ₱0
         </button>
+        <button class="help-btn" onclick="openAssistanceModal()">
+            🙋
+        </button>
+    </div>
+
+    <div class="assistance-modal" id="assistanceModal">
+        <div class="assistance-content">
+            <h3>🙋 Need Assistance?</h3>
+            <div class="assistance-option" onclick="requestAssistance('water')">
+                <div class="icon">💧</div>
+                <div class="text">
+                    <h4>Request Water</h4>
+                    <p>Get water delivered to your table</p>
+                </div>
+            </div>
+            <div class="assistance-option" onclick="requestAssistance('bill')">
+                <div class="icon">🧾</div>
+                <div class="text">
+                    <h4>Request Bill</h4>
+                    <p>Ready to pay</p>
+                </div>
+            </div>
+            <div class="assistance-option" onclick="requestAssistance('waiter')">
+                <div class="icon">👤</div>
+                <div class="text">
+                    <h4>Call Waiter</h4>
+                    <p>Need help with something</p>
+                </div>
+            </div>
+            <div class="assistance-option" onclick="requestAssistance('utensils')">
+                <div class="icon">🍴</div>
+                <div class="text">
+                    <h4>Request Utensils</h4>
+                    <p>Need extra utensils</p>
+                </div>
+            </div>
+            <button class="close-assistance-btn" onclick="closeAssistanceModal()">Cancel</button>
+        </div>
     </div>
 
     <script type="module">
@@ -1212,6 +1344,50 @@
         window.updateQuantity = updateQuantity;
         window.removeFromCart = removeFromCart;
         window.sendOrder = sendOrder;
+
+        // Assistance Modal Functions
+        function openAssistanceModal() {
+            document.getElementById('assistanceModal').classList.add('active');
+        }
+
+        function closeAssistanceModal() {
+            document.getElementById('assistanceModal').classList.remove('active');
+        }
+
+        async function requestAssistance(type) {
+            const typeLabels = {
+                water: '💧 Water',
+                bill: '🧾 Bill',
+                waiter: '👤 Waiter',
+                utensils: '🍴 Utensils'
+            };
+
+            try {
+                const assistanceRef = window.firebaseRef(window.firebaseDB, 'assistance_requests');
+                const newRequest = {
+                    tableNumber: tableNumber,
+                    type: type,
+                    label: typeLabels[type],
+                    timestamp: getManilaTimestamp(),
+                    status: 'pending'
+                };
+
+                await window.firebaseSet(window.firebasePush(assistanceRef), newRequest);
+
+                showNotification(`Request sent! ${typeLabels[type]} on the way!`);
+                closeAssistanceModal();
+
+                console.log('🔔 Assistance request sent:', newRequest);
+
+            } catch (error) {
+                console.error('❌ Assistance request error:', error);
+                alert('Failed to send request. Please call a waiter directly.');
+            }
+        }
+
+        window.openAssistanceModal = openAssistanceModal;
+        window.closeAssistanceModal = closeAssistanceModal;
+        window.requestAssistance = requestAssistance;
 
         init();
     </script>
