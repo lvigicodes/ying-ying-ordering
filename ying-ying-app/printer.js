@@ -3,11 +3,13 @@ const net = require('net');
 class KitchenPrinter {
     constructor() {
         // Printer IP addresses
-        this.upperPrinterIP = '10.0.3.1';
-        this.lowerPrinterIP = '10.0.3.1'; // Same for now, update when second printer arrives
+        this.staffPrinterIP = '10.0.3.1';   // Staff counter (review & payment receipts)
+        this.upperPrinterIP = '10.0.3.2';   // Upper Kitchen (LogicOwl)
+        this.lowerPrinterIP = '10.0.3.3';   // Lower Kitchen (LogicOwl)
         this.printerPort = 9100;
         
-        console.log('🖨️ Printer module initialized');
+        console.log('🖨️ Printer module initialized - 3 PRINTERS READY!');
+        console.log(`📍 Staff Counter: ${this.staffPrinterIP}:${this.printerPort}`);
         console.log(`🔧 Upper Kitchen: ${this.upperPrinterIP}:${this.printerPort}`);
         console.log(`🔧 Lower Kitchen: ${this.lowerPrinterIP}:${this.printerPort}`);
     }
@@ -261,9 +263,9 @@ class KitchenPrinter {
             console.log(receipt.replace(/[\x00-\x1F\x7F-\x9F]/g, ''));
             console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-            // Send to upper printer (could send to either one)
-            await this.sendToPrinter(this.upperPrinterIP, this.printerPort, receipt);
-            console.log('✅ Payment receipt printed!\n');
+            // Send to staff printer (for customer payment receipt)
+            await this.sendToPrinter(this.staffPrinterIP, this.printerPort, receipt);
+            console.log('✅ Payment receipt printed on STAFF PRINTER!\n');
             return true;
         } catch (error) {
             console.error('❌ Print payment error:', error);
@@ -281,9 +283,9 @@ class KitchenPrinter {
             console.log(receipt.replace(/[\x00-\x1F\x7F-\x9F]/g, ''));
             console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-            // Send to upper printer (could send to either one)
-            await this.sendToPrinter(this.upperPrinterIP, this.printerPort, receipt);
-            console.log('✅ Combined receipt printed!\n');
+            // Send to staff printer (for customer review)
+            await this.sendToPrinter(this.staffPrinterIP, this.printerPort, receipt);
+            console.log('✅ Combined receipt printed on STAFF PRINTER!\n');
             return true;
         } catch (error) {
             console.error('❌ Print combined error:', error);
