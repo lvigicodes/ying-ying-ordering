@@ -81,6 +81,7 @@
         .category-tabs {
             display: flex;
             overflow-x: auto;
+            overflow-y: hidden;
             background: white;
             padding: 10px;
             gap: 8px;
@@ -88,11 +89,36 @@
             top: 145px;
             z-index: 98;
             border-bottom: 2px solid #eee;
-            scrollbar-width: none;
+            scrollbar-width: thin;
+            -webkit-overflow-scrolling: touch;
         }
 
         .category-tabs::-webkit-scrollbar {
-            display: none;
+            height: 6px;
+        }
+
+        .category-tabs::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .category-tabs::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+
+        .category-tabs::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Hide scrollbar on mobile only */
+        @media (max-width: 768px) {
+            .category-tabs {
+                scrollbar-width: none;
+            }
+            
+            .category-tabs::-webkit-scrollbar {
+                display: none;
+            }
         }
 
         .category-tab {
@@ -1307,7 +1333,7 @@
                 await window.firebaseSet(newOrderRef, order);
                 
                 console.log('🔥 ORDER SENT TO FIREBASE:', order);
-                alert(`✅ Order #${orderId} sent! Please wait for staff confirmation.`);
+                alert(`🐓 Order #${orderId} received!\n\n✨ Your delicious meal is being prepared.\n\nOur staff will confirm your order shortly. Thank you for dining at Ying Ying Tea House!`);
                 
                 cart = [];
                 updateCartButton();
