@@ -625,6 +625,15 @@
             background: #5a6268;
         }
 
+        .finalize-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .finalize-btn:hover {
+            background: #059669;
+        }
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -949,8 +958,8 @@
             const container = document.getElementById('ordersContainer');
             const searchTerm = document.getElementById('orderSearch').value.toLowerCase();
             
-            // Filter by status
-            let filteredOrders = orders.filter(o => o.status === currentTab);
+            // Filter by status AND exclude finalized orders
+            let filteredOrders = orders.filter(o => o.status === currentTab && !o.finalized);
             
             // Filter by date if selected
             if (selectedDate) {
@@ -1152,6 +1161,9 @@
                         <button class="action-btn print-btn" onclick="printOrder('${order.firebaseKey}')">
                             🖨️ Print Receipt
                         </button>
+                        <button class="action-btn finalize-btn" onclick="finalizePayment('${order.firebaseKey}')">
+                            💰 Finalize Payment
+                        </button>
                     `;
                 default:
                     return '';
@@ -1194,6 +1206,22 @@
                 'timestamps/delivered': getCurrentManilaTimestamp()
             });
             console.log('✅ Order marked delivered in Firebase');
+        }
+
+        // Finalize payment - archives order and resets table
+        async function finalizePayment(firebaseKey) {
+            const order = orders.find(o => o.firebaseKey === firebaseKey);
+            if (!order) return;
+            
+            if (confirm(`💰 Finalize payment for Order #${order.orderId}?\n\nTable ${order.tableNumber} will be reset for new customers.\n\nTotal: ₱${order.total.toFixed(2)}`)) {
+                const orderRef = ref(database, `orders/${firebaseKey}`);
+                await update(orderRef, {
+                    finalized: true,
+                    'timestamps/finalized': getCurrentManilaTimestamp()
+                });
+                console.log('✅ Payment finalized - table reset');
+                alert(`✅ Payment finalized!\n\nTable ${order.tableNumber} is now ready for new customers.`);
+            }
         }
 
         // Print order
@@ -1452,6 +1480,7 @@
         window.confirmOrder = confirmOrder;
         window.markReady = markReady;
         window.markDelivered = markDelivered;
+        window.finalizePayment = finalizePayment;
         window.printOrder = printOrder;
         window.exportOrders = exportOrders;
         

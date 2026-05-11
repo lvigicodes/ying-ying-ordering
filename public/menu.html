@@ -608,6 +608,38 @@
             font-weight: bold;
             margin-top: 10px;
         }
+
+        /* SCROLL TO TOP BUTTON */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 120px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: #ff6b35;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scroll-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-to-top:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body>
@@ -695,6 +727,11 @@
             <button class="close-assistance-btn" onclick="closeAssistanceModal()">Cancel</button>
         </div>
     </div>
+
+    <!-- SCROLL TO TOP BUTTON -->
+    <button class="scroll-to-top" id="scrollToTop" onclick="scrollToTop()">
+        ⬆️
+    </button>
 
     <script type="module">
         // Firebase imports
@@ -1312,41 +1349,82 @@
             const orderDate = dateObj.toISOString().split('T')[0].replace(/-/g, '');
             
             try {
-                // Get existing orders from Firebase to generate order number
+                // Get existing orders from Firebase
                 const ordersRef = window.firebaseRef(window.firebaseDB, 'orders');
                 const snapshot = await window.firebaseGet(ordersRef);
                 const existingOrders = snapshot.exists() ? Object.values(snapshot.val()) : [];
+                const existingOrdersWithKeys = snapshot.exists() ? Object.entries(snapshot.val()).map(([key, val]) => ({ firebaseKey: key, ...val })) : [];
                 
-                const todayOrders = existingOrders.filter(o => o.orderId.includes(orderDate));
-                const orderNumber = (todayOrders.length + 1).toString().padStart(3, '0');
-                const orderId = `YY-${orderDate}-${orderNumber}`;
+                // Check if table has ACTIVE orders (not finalized/archived)
+                const activeOrderFromTable = existingOrdersWithKeys.find(o => 
+                    o.tableNumber === tableNumber && 
+                    !o.finalized && 
+                    (o.status === 'pending' || o.status === 'confirmed' || o.status === 'ready' || o.status === 'completed')
+                );
                 
-                const order = {
-                    orderId: orderId,
-                    tableNumber: tableNumber,
-                    items: cart.map(item => ({
+                if (activeOrderFromTable) {
+                    // MERGE: Add items to existing order
+                    const newItems = cart.map(item => ({
                         name: item.name,
                         price: item.price,
                         quantity: item.quantity,
                         variation: item.selectedVariation ? item.selectedVariation.size : null,
                         station: item.station
-                    })),
-                    total: total,
-                    status: 'pending',
-                    timestamps: {
-                        submitted: timestamp,
-                        confirmed: null,
-                        ready: null,
-                        delivered: null
-                    }
-                };
-                
-                // Save to Firebase
-                const newOrderRef = window.firebasePush(ordersRef);
-                await window.firebaseSet(newOrderRef, order);
-                
-                console.log('🔥 ORDER SENT TO FIREBASE:', order);
-                alert(`🐓 Order #${orderId} received!\n\n✨ Your delicious meal is being prepared.\n\nOur staff will confirm your order shortly. Thank you for dining at Ying Ying Tea House!`);
+                    }));
+                    
+                    const updatedItems = [...activeOrderFromTable.items, ...newItems];
+                    const updatedTotal = updatedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                    
+                    // Update existing order
+                    const orderRef = window.firebaseRef(window.firebaseDB, `orders/${activeOrderFromTable.firebaseKey}`);
+                    await window.firebaseSet(orderRef, {
+                        ...activeOrderFromTable,
+                        items: updatedItems,
+                        total: updatedTotal,
+                        timestamps: {
+                            ...activeOrderFromTable.timestamps,
+                            lastUpdated: timestamp
+                        }
+                    });
+                    
+                    console.log('🔥 MERGED ORDER:', activeOrderFromTable.orderId);
+                    alert(`🐓 Added to Order #${activeOrderFromTable.orderId}!\n\n✨ Your additional items have been added.\n\nOur staff will confirm your order shortly. Thank you for dining at Ying Ying Tea House!`);
+                    
+                } else {
+                    // CREATE NEW ORDER: No active order for this table
+                    const todayOrders = existingOrders.filter(o => o.orderId.includes(orderDate));
+                    const orderNumber = (todayOrders.length + 1).toString().padStart(3, '0');
+                    const orderId = `YY-${orderDate}-${orderNumber}`;
+                    
+                    const order = {
+                        orderId: orderId,
+                        tableNumber: tableNumber,
+                        items: cart.map(item => ({
+                            name: item.name,
+                            price: item.price,
+                            quantity: item.quantity,
+                            variation: item.selectedVariation ? item.selectedVariation.size : null,
+                            station: item.station
+                        })),
+                        total: total,
+                        status: 'pending',
+                        finalized: false,
+                        timestamps: {
+                            submitted: timestamp,
+                            confirmed: null,
+                            ready: null,
+                            delivered: null,
+                            lastUpdated: timestamp
+                        }
+                    };
+                    
+                    // Save to Firebase
+                    const newOrderRef = window.firebasePush(ordersRef);
+                    await window.firebaseSet(newOrderRef, order);
+                    
+                    console.log('🔥 NEW ORDER SENT TO FIREBASE:', order);
+                    alert(`🐓 Order #${orderId} received!\n\n✨ Your delicious meal is being prepared.\n\nOur staff will confirm your order shortly. Thank you for dining at Ying Ying Tea House!`);
+                }
                 
                 cart = [];
                 updateCartButton();
@@ -1427,6 +1505,25 @@
         window.openAssistanceModal = openAssistanceModal;
         window.closeAssistanceModal = closeAssistanceModal;
         window.requestAssistance = requestAssistance;
+
+        // Scroll to top button functionality
+        window.addEventListener('scroll', () => {
+            const scrollBtn = document.getElementById('scrollToTop');
+            if (window.pageYOffset > 300) {
+                scrollBtn.classList.add('visible');
+            } else {
+                scrollBtn.classList.remove('visible');
+            }
+        });
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        window.scrollToTop = scrollToTop;
 
         init();
     </script>
