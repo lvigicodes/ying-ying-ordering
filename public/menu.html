@@ -32,6 +32,59 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            transition: all 0.35s ease;
+            overflow: hidden;
+        }
+
+        .header.collapsed {
+            padding: 8px 15px;
+            max-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-align: left;
+        }
+
+        .header-full {
+            transition: opacity 0.35s ease;
+        }
+
+        .header.collapsed .header-full {
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+        }
+
+        .header-mini {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+        }
+
+        .header.collapsed .header-mini {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .header-mini-title {
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .header-mini-table {
+            color: #2d5016;
+            font-size: 13px;
+            background: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            border: 2px solid #ff6b35;
         }
 
         .logo {
@@ -73,8 +126,13 @@
             background: white;
             border-bottom: 2px solid #eee;
             position: sticky;
-            top: 85px;
+            top: 200px;
             z-index: 99;
+            transition: top 0.35s ease;
+        }
+
+        .header.collapsed ~ .search-container {
+            top: 44px;
         }
 
         .search-box {
@@ -643,10 +701,16 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo"></div>
-        <h1>YING YING TEA HOUSE</h1>
-        <p class="table-number">Table #<span id="tableNumber">?</span></p>
+    <div class="header" id="mainHeader">
+        <div class="header-full">
+            <div class="logo"></div>
+            <h1>YING YING TEA HOUSE</h1>
+            <p class="table-number">Table #<span id="tableNumber">?</span></p>
+        </div>
+        <div class="header-mini">
+            <span class="header-mini-title">YING YING TEA HOUSE</span>
+            <span class="header-mini-table">Table #<span id="tableNumberMini">?</span></span>
+        </div>
     </div>
 
     <div class="search-container">
@@ -1105,6 +1169,7 @@
         function init() {
             tableNumber = getTableNumber();
             document.getElementById('tableNumber').textContent = tableNumber;
+            document.getElementById('tableNumberMini').textContent = tableNumber;
             renderCategoryTabs();
             renderMenu();
             setupSearch();
@@ -1506,10 +1571,22 @@
         window.closeAssistanceModal = closeAssistanceModal;
         window.requestAssistance = requestAssistance;
 
-        // Scroll to top button functionality
+        // Header collapse and scroll to top button functionality
+        const mainHeader = document.getElementById('mainHeader');
+        
         window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // Collapse header after scrolling past 60px
+            if (scrollTop > 60) {
+                mainHeader.classList.add('collapsed');
+            } else {
+                mainHeader.classList.remove('collapsed');
+            }
+
+            // Scroll to top button visibility
             const scrollBtn = document.getElementById('scrollToTop');
-            if (window.pageYOffset > 300) {
+            if (scrollTop > 300) {
                 scrollBtn.classList.add('visible');
             } else {
                 scrollBtn.classList.remove('visible');
