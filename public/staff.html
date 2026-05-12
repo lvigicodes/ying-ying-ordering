@@ -1728,12 +1728,8 @@
                 function formatDate(isoString) {
                     if (!isoString) return '';
                     const date = new Date(isoString);
-                    return date.toLocaleDateString('en-US', {
-                        timeZone: 'Asia/Manila',
-                        month: 'short',
-                        day: '2-digit',
-                        year: 'numeric'
-                    }).replace(/,/g, '');
+                    // ISO format: YYYY-MM-DD
+                    return date.toISOString().split('T')[0];
                 }
                 
                 function formatTime(isoString) {
@@ -1749,6 +1745,8 @@
                 
                 // Generate CSV with durations
                 let csv = 'Order ID,Table,Date,Time,Status,Wait Time,Cook Time,Serve Time,Total Time,Revenue,Items\n';
+                
+                let totalRevenue = 0;
                 
                 filteredOrders.forEach(order => {
                     const itemsList = order.items.map(item => 
@@ -1770,12 +1768,16 @@
                         cookTime,
                         serveTime,
                         totalTime,
-                        order.total,
+                        order.total.toFixed(2),
                         `"${itemsList}"`
                     ].join(',');
                     
                     csv += row + '\n';
+                    totalRevenue += order.total;
                 });
+                
+                // Add TOTAL row
+                csv += `,,,,,,,,TOTAL:,${totalRevenue.toFixed(2)},\n`;
                 
                 // Download CSV with UTF-8 BOM for proper Excel encoding
                 const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
