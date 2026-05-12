@@ -313,6 +313,108 @@
             background: #c0392b;
         }
 
+        .export-btn {
+            padding: 8px 16px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            margin-left: 10px;
+        }
+
+        .export-btn:hover {
+            background: #229954;
+        }
+
+        /* EXPORT MODAL */
+        .export-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .export-modal.active {
+            display: flex;
+        }
+
+        .export-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .export-modal h2 {
+            color: #2d5016;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .export-date-range {
+            margin-bottom: 20px;
+        }
+
+        .export-date-range label {
+            display: block;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .export-date-range input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .export-modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .export-modal-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .export-confirm-btn {
+            background: #27ae60;
+            color: white;
+        }
+
+        .export-confirm-btn:hover {
+            background: #229954;
+        }
+
+        .export-cancel-btn {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .export-cancel-btn:hover {
+            background: #7f8c8d;
+        }
+
         /* TABS */
         .tabs {
             max-width: 1200px;
@@ -713,6 +815,9 @@
             <button class="clear-date-btn" onclick="clearDateFilter()" id="clearDateBtn" style="display: none;">
                 Show All Dates
             </button>
+            <button class="export-btn" onclick="openExportModal()">
+                📊 Export to CSV
+            </button>
         </div>
 
         <!-- TABS -->
@@ -735,6 +840,24 @@
 
         <!-- ORDERS CONTAINER -->
         <div class="orders-container" id="ordersContainer"></div>
+    </div>
+
+    <!-- EXPORT MODAL -->
+    <div class="export-modal" id="exportModal">
+        <div class="export-modal-content">
+            <h2>📊 Export Orders to CSV</h2>
+            <div class="export-date-range">
+                <label>Start Date:</label>
+                <input type="date" id="exportStartDate">
+                
+                <label>End Date:</label>
+                <input type="date" id="exportEndDate">
+            </div>
+            <div class="export-modal-actions">
+                <button class="export-cancel-btn" onclick="closeExportModal()">Cancel</button>
+                <button class="export-confirm-btn" onclick="exportToCSV()">Export</button>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -1530,6 +1653,108 @@
         
         window.filterByDate = filterByDate;
         window.clearDateFilter = clearDateFilter;
+
+        // Export modal functions
+        function openExportModal() {
+            const modal = document.getElementById('exportModal');
+            const today = new Date().toISOString().split('T')[0];
+            
+            // Set default dates (last 7 days to today)
+            const lastWeek = new Date();
+            lastWeek.setDate(lastWeek.getDate() - 7);
+            document.getElementById('exportStartDate').value = lastWeek.toISOString().split('T')[0];
+            document.getElementById('exportEndDate').value = today;
+            
+            modal.classList.add('active');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('active');
+        }
+
+        async function exportToCSV() {
+            const startDate = document.getElementById('exportStartDate').value;
+            const endDate = document.getElementById('exportEndDate').value;
+            
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates!');
+                return;
+            }
+            
+            if (new Date(startDate) > new Date(endDate)) {
+                alert('Start date must be before end date!');
+                return;
+            }
+            
+            try {
+                // Get all orders from Firebase
+                const ordersRef = ref(database, 'orders');
+                const snapshot = await get(ordersRef);
+                
+                if (!snapshot.exists()) {
+                    alert('No orders found!');
+                    return;
+                }
+                
+                const allOrders = Object.entries(snapshot.val()).map(([key, val]) => ({ firebaseKey: key, ...val }));
+                
+                // Filter by date range
+                const filteredOrders = allOrders.filter(order => {
+                    const orderDate = new Date(order.timestamps.submitted).toLocaleDateString('en-US', { timeZone: 'Asia/Manila' });
+                    const start = new Date(startDate).toLocaleDateString('en-US', { timeZone: 'Asia/Manila' });
+                    const end = new Date(endDate).toLocaleDateString('en-US', { timeZone: 'Asia/Manila' });
+                    
+                    return orderDate >= start && orderDate <= end;
+                });
+                
+                if (filteredOrders.length === 0) {
+                    alert(`No orders found between ${startDate} and ${endDate}`);
+                    return;
+                }
+                
+                // Generate CSV
+                let csv = 'Order ID,Table,Status,Items,Quantity,Total,Submitted,Confirmed,Ready,Delivered,Finalized\n';
+                
+                filteredOrders.forEach(order => {
+                    const items = order.items.map(item => {
+                        const variation = item.variation ? ` (${item.variation})` : '';
+                        return `${item.name}${variation}`;
+                    }).join('; ');
+                    
+                    const totalQty = order.items.reduce((sum, item) => sum + item.quantity, 0);
+                    
+                    const submitted = order.timestamps.submitted || '';
+                    const confirmed = order.timestamps.confirmed || '';
+                    const ready = order.timestamps.ready || '';
+                    const delivered = order.timestamps.delivered || '';
+                    const finalized = order.timestamps.finalized || '';
+                    
+                    csv += `"${order.orderId}","${order.tableNumber}","${order.status}","${items}",${totalQty},₱${order.total.toFixed(2)},"${submitted}","${confirmed}","${ready}","${delivered}","${finalized}"\n`;
+                });
+                
+                // Download CSV
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ying-ying-orders-${startDate}-to-${endDate}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                closeExportModal();
+                alert(`✅ Exported ${filteredOrders.length} orders!`);
+                
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Failed to export orders. Please try again!');
+            }
+        }
+
+        window.openExportModal = openExportModal;
+        window.closeExportModal = closeExportModal;
+        window.exportToCSV = exportToCSV;
     </script>
 </body>
 </html>
