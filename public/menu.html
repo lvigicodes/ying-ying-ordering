@@ -1421,11 +1421,19 @@
                 const existingOrdersWithKeys = snapshot.exists() ? Object.entries(snapshot.val()).map(([key, val]) => ({ firebaseKey: key, ...val })) : [];
                 
                 // Check if table has ACTIVE orders (not finalized/archived)
+                // Ensure tableNumber comparison works (both as strings)
                 const activeOrderFromTable = existingOrdersWithKeys.find(o => 
-                    o.tableNumber === tableNumber && 
+                    String(o.tableNumber) === String(tableNumber) && 
                     !o.finalized && 
                     (o.status === 'pending' || o.status === 'confirmed' || o.status === 'ready' || o.status === 'completed')
                 );
+                
+                console.log('🔍 MERGE CHECK:', {
+                    tableNumber: tableNumber,
+                    foundActiveOrder: !!activeOrderFromTable,
+                    activeOrderId: activeOrderFromTable?.orderId,
+                    allTableOrders: existingOrdersWithKeys.filter(o => String(o.tableNumber) === String(tableNumber))
+                });
                 
                 if (activeOrderFromTable) {
                     // MERGE: Add items to existing order
