@@ -1699,12 +1699,15 @@
                 const allOrders = Object.entries(snapshot.val()).map(([key, val]) => ({ firebaseKey: key, ...val }));
                 
                 // Filter by date range
+                const startDateObj = new Date(startDate);
+                startDateObj.setHours(0, 0, 0, 0);
+                
+                const endDateObj = new Date(endDate);
+                endDateObj.setHours(23, 59, 59, 999);
+                
                 const filteredOrders = allOrders.filter(order => {
-                    const orderDate = new Date(order.timestamps.submitted).toLocaleDateString('en-US', { timeZone: 'Asia/Manila' });
-                    const start = new Date(startDate).toLocaleDateString('en-US', { timeZone: 'Asia/Manila' });
-                    const end = new Date(endDate).toLocaleDateString('en-US', { timeZone: 'Asia/Manila' });
-                    
-                    return orderDate >= start && orderDate <= end;
+                    const orderDateObj = new Date(order.timestamps.submitted);
+                    return orderDateObj >= startDateObj && orderDateObj <= endDateObj;
                 });
                 
                 if (filteredOrders.length === 0) {
