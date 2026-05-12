@@ -777,7 +777,6 @@
                 </div>
                 <div class="header-right">
                     <button class="refresh-btn" onclick="loadOrders()">🔄 Refresh</button>
-                    <button class="refresh-btn" onclick="exportOrders()">📥 Export</button>
                     <button class="logout-btn" onclick="logout()">Logout</button>
                 </div>
             </div>
@@ -1715,28 +1714,71 @@
                     return;
                 }
                 
-                // Generate CSV
-                let csv = 'Order ID,Table,Status,Items,Quantity,Total,Submitted,Confirmed,Ready,Delivered,Finalized\n';
+                // Helper functions for formatting
+                function formatDuration(startTime, endTime) {
+                    if (!startTime || !endTime) return '';
+                    const start = new Date(startTime);
+                    const end = new Date(endTime);
+                    const diffMs = end - start;
+                    const mins = Math.floor(diffMs / 60000);
+                    const secs = Math.floor((diffMs % 60000) / 1000);
+                    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                }
+                
+                function formatDate(isoString) {
+                    if (!isoString) return '';
+                    const date = new Date(isoString);
+                    return date.toLocaleDateString('en-US', {
+                        timeZone: 'Asia/Manila',
+                        month: 'short',
+                        day: '2-digit',
+                        year: 'numeric'
+                    }).replace(/,/g, '');
+                }
+                
+                function formatTime(isoString) {
+                    if (!isoString) return '';
+                    const date = new Date(isoString);
+                    return date.toLocaleTimeString('en-US', {
+                        timeZone: 'Asia/Manila',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    });
+                }
+                
+                // Generate CSV with durations
+                let csv = 'Order ID,Table,Date,Time,Status,Wait Time,Cook Time,Serve Time,Total Time,Revenue,Items\n';
                 
                 filteredOrders.forEach(order => {
-                    const items = order.items.map(item => {
-                        const variation = item.variation ? ` (${item.variation})` : '';
-                        return `${item.name}${variation}`;
-                    }).join('; ');
+                    const itemsList = order.items.map(item => 
+                        `${item.quantity}x ${item.name}${item.variation ? ' (' + item.variation + ')' : ''}`
+                    ).join(', ');
                     
-                    const totalQty = order.items.reduce((sum, item) => sum + item.quantity, 0);
+                    const waitTime = formatDuration(order.timestamps.submitted, order.timestamps.confirmed);
+                    const cookTime = formatDuration(order.timestamps.confirmed, order.timestamps.ready);
+                    const serveTime = formatDuration(order.timestamps.ready, order.timestamps.delivered);
+                    const totalTime = formatDuration(order.timestamps.submitted, order.timestamps.delivered);
                     
-                    const submitted = order.timestamps.submitted || '';
-                    const confirmed = order.timestamps.confirmed || '';
-                    const ready = order.timestamps.ready || '';
-                    const delivered = order.timestamps.delivered || '';
-                    const finalized = order.timestamps.finalized || '';
+                    const row = [
+                        order.orderId,
+                        order.tableNumber,
+                        formatDate(order.timestamps.submitted),
+                        formatTime(order.timestamps.submitted),
+                        order.status,
+                        waitTime,
+                        cookTime,
+                        serveTime,
+                        totalTime,
+                        order.total,
+                        `"${itemsList}"`
+                    ].join(',');
                     
-                    csv += `"${order.orderId}","${order.tableNumber}","${order.status}","${items}",${totalQty},₱${order.total.toFixed(2)},"${submitted}","${confirmed}","${ready}","${delivered}","${finalized}"\n`;
+                    csv += row + '\n';
                 });
                 
-                // Download CSV
-                const blob = new Blob([csv], { type: 'text/csv' });
+                // Download CSV with UTF-8 BOM for proper Excel encoding
+                const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
