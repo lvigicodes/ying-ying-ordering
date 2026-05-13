@@ -1080,8 +1080,13 @@
             const container = document.getElementById('ordersContainer');
             const searchTerm = document.getElementById('orderSearch').value.toLowerCase();
             
-            // Filter by status AND exclude finalized orders
-            let filteredOrders = orders.filter(o => o.status === currentTab && !o.finalized);
+            // Filter by status - show finalized orders ONLY in Completed tab
+            let filteredOrders = orders.filter(o => {
+                if (currentTab === 'completed') {
+                    return o.status === 'completed'; // Show ALL completed orders (paid or unpaid)
+                }
+                return o.status === currentTab && !o.finalized; // Hide finalized from other tabs
+            });
             
             // Filter by date if selected
             if (selectedDate) {
@@ -1279,6 +1284,14 @@
                         </button>
                     `;
                 case 'completed':
+                    // Show PAID badge for finalized orders, buttons for unpaid
+                    if (order.finalized) {
+                        return `
+                            <div style="background: #d4edda; color: #155724; padding: 12px; border-radius: 8px; font-weight: bold; text-align: center;">
+                                ✅ PAID
+                            </div>
+                        `;
+                    }
                     return `
                         <button class="action-btn print-btn" onclick="printOrder('${order.firebaseKey}')">
                             🖨️ Print Receipt
