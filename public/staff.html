@@ -202,6 +202,219 @@
             color: #666;
         }
 
+        /* ASSISTANCE ALERTS */
+        .assistance-alerts {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .assistance-alert {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .assistance-alert-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .assistance-alert-icon {
+            font-size: 32px;
+        }
+
+        .assistance-alert-text h4 {
+            margin-bottom: 3px;
+            color: #333;
+        }
+
+        .assistance-alert-text p {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .resolve-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .resolve-btn:hover {
+            background: #218838;
+        }
+
+        /* DATE FILTER */
+        .date-filter {
+            max-width: 1200px;
+            margin: 0 auto 20px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .date-filter label {
+            font-weight: bold;
+            color: #2d5016;
+        }
+
+        .date-filter input[type="date"] {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .date-filter input[type="date"]:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+
+        .clear-date-btn {
+            padding: 8px 16px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .clear-date-btn:hover {
+            background: #c0392b;
+        }
+
+        .export-btn {
+            padding: 8px 16px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            margin-left: 10px;
+        }
+
+        .export-btn:hover {
+            background: #229954;
+        }
+
+        /* EXPORT MODAL */
+        .export-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .export-modal.active {
+            display: flex;
+        }
+
+        .export-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .export-modal h2 {
+            color: #2d5016;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .export-date-range {
+            margin-bottom: 20px;
+        }
+
+        .export-date-range label {
+            display: block;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .export-date-range input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .export-modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .export-modal-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .export-confirm-btn {
+            background: #27ae60;
+            color: white;
+        }
+
+        .export-confirm-btn:hover {
+            background: #229954;
+        }
+
+        .export-cancel-btn {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .export-cancel-btn:hover {
+            background: #7f8c8d;
+        }
+
         /* TABS */
         .tabs {
             max-width: 1200px;
@@ -514,6 +727,15 @@
             background: #5a6268;
         }
 
+        .finalize-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .finalize-btn:hover {
+            background: #059669;
+        }
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -555,7 +777,6 @@
                 </div>
                 <div class="header-right">
                     <button class="refresh-btn" onclick="loadOrders()">🔄 Refresh</button>
-                    <button class="refresh-btn" onclick="exportOrders()">📥 Export</button>
                     <button class="logout-btn" onclick="logout()">Logout</button>
                 </div>
             </div>
@@ -578,9 +799,24 @@
                 </div>
                 <div class="stat-card completed">
                     <div class="number" id="statCompleted">0</div>
-                    <div class="label">Completed Today</div>
+                    <div class="label">All Completed</div>
                 </div>
             </div>
+        </div>
+
+        <!-- ASSISTANCE ALERTS -->
+        <div class="assistance-alerts" id="assistanceAlerts"></div>
+
+        <!-- DATE FILTER -->
+        <div class="date-filter">
+            <label>📅 Filter by Date:</label>
+            <input type="date" id="dateFilter" onchange="filterByDate()">
+            <button class="clear-date-btn" onclick="clearDateFilter()" id="clearDateBtn" style="display: none;">
+                Show All Dates
+            </button>
+            <button class="export-btn" onclick="openExportModal()">
+                📊 Export to CSV
+            </button>
         </div>
 
         <!-- TABS -->
@@ -605,10 +841,28 @@
         <div class="orders-container" id="ordersContainer"></div>
     </div>
 
+    <!-- EXPORT MODAL -->
+    <div class="export-modal" id="exportModal">
+        <div class="export-modal-content">
+            <h2>📊 Export Orders to CSV</h2>
+            <div class="export-date-range">
+                <label>Start Date:</label>
+                <input type="date" id="exportStartDate">
+                
+                <label>End Date:</label>
+                <input type="date" id="exportEndDate">
+            </div>
+            <div class="export-modal-actions">
+                <button class="export-cancel-btn" onclick="closeExportModal()">Cancel</button>
+                <button class="export-confirm-btn" onclick="exportToCSV()">Export</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         // Firebase imports
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getDatabase, ref, onValue, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+        import { getDatabase, ref, onValue, update, get } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
         // Firebase config
         const firebaseConfig = {
@@ -629,6 +883,7 @@
 
         const CORRECT_PIN = '9875';
         let currentTab = 'pending';
+        let selectedDate = null; // null = show all dates
         let orders = [];
         let ordersRef = null;
 
@@ -746,19 +1001,63 @@
                 updateStats();
                 renderOrders();
             });
+
+            // Listen for assistance requests
+            const assistanceRef = ref(database, 'assistance_requests');
+            onValue(assistanceRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    const requests = Object.keys(data)
+                        .map(key => ({ firebaseKey: key, ...data[key] }))
+                        .filter(req => req.status === 'pending');
+                    renderAssistanceAlerts(requests);
+                } else {
+                    renderAssistanceAlerts([]);
+                }
+            });
+        }
+
+        // Render assistance alerts
+        function renderAssistanceAlerts(requests) {
+            const container = document.getElementById('assistanceAlerts');
+            
+            if (requests.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = requests.map(req => `
+                <div class="assistance-alert">
+                    <div class="assistance-alert-info">
+                        <div class="assistance-alert-icon">${req.label.split(' ')[0]}</div>
+                        <div class="assistance-alert-text">
+                            <h4>Table ${req.tableNumber}: ${req.label.substring(2)}</h4>
+                            <p>${formatManilaTime(req.timestamp)}</p>
+                        </div>
+                    </div>
+                    <button class="resolve-btn" onclick="resolveAssistance('${req.firebaseKey}')">
+                        ✓ Resolved
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Resolve assistance request
+        async function resolveAssistance(firebaseKey) {
+            const assistanceRef = ref(database, `assistance_requests/${firebaseKey}`);
+            await update(assistanceRef, {
+                status: 'resolved',
+                resolvedAt: getCurrentManilaTimestamp()
+            });
+            console.log('✅ Assistance request resolved');
         }
 
         // Update stats
         function updateStats() {
-            const today = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila' });
-            
             const pending = orders.filter(o => o.status === 'pending').length;
             const confirmed = orders.filter(o => o.status === 'confirmed').length;
             const ready = orders.filter(o => o.status === 'ready').length;
-            const completed = orders.filter(o => {
-                const orderDate = new Date(o.timestamps.submitted).toLocaleDateString('en-US', { timeZone: 'Asia/Manila' });
-                return o.status === 'completed' && orderDate === today;
-            }).length;
+            const completed = orders.filter(o => o.status === 'completed').length;
             
             document.getElementById('statPending').textContent = pending;
             document.getElementById('statConfirmed').textContent = confirmed;
@@ -781,8 +1080,24 @@
             const container = document.getElementById('ordersContainer');
             const searchTerm = document.getElementById('orderSearch').value.toLowerCase();
             
-            // Filter by status
-            let filteredOrders = orders.filter(o => o.status === currentTab);
+            // Filter by status - show finalized orders ONLY in Completed tab
+            let filteredOrders = orders.filter(o => {
+                if (currentTab === 'completed') {
+                    return o.status === 'completed'; // Show ALL completed orders (paid or unpaid)
+                }
+                return o.status === currentTab && !o.finalized; // Hide finalized from other tabs
+            });
+            
+            // Filter by date if selected
+            if (selectedDate) {
+                filteredOrders = filteredOrders.filter(order => {
+                    const orderDate = new Date(order.timestamps.submitted)
+                        .toLocaleDateString('en-US', { timeZone: 'Asia/Manila' });
+                    const filterDate = new Date(selectedDate)
+                        .toLocaleDateString('en-US', { timeZone: 'Asia/Manila' });
+                    return orderDate === filterDate;
+                });
+            }
             
             // Filter by search term
             if (searchTerm) {
@@ -793,15 +1108,28 @@
             }
             
             if (filteredOrders.length === 0) {
-                const message = searchTerm 
-                    ? `No orders match "${searchTerm}"`
-                    : `No ${currentTab} orders`;
+                let message = `No ${currentTab} orders`;
+                let subMessage = 'Orders will appear here when customers place them';
+                
+                if (selectedDate) {
+                    const formattedDate = new Date(selectedDate).toLocaleDateString('en-US', { 
+                        timeZone: 'Asia/Manila',
+                        month: 'short',
+                        day: '2-digit',
+                        year: 'numeric'
+                    });
+                    message = `No ${currentTab} orders on ${formattedDate}`;
+                    subMessage = 'Try selecting a different date';
+                } else if (searchTerm) {
+                    message = `No orders match "${searchTerm}"`;
+                    subMessage = 'Try a different search term';
+                }
                     
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="icon">📋</div>
                         <h2>${message}</h2>
-                        <p>${searchTerm ? 'Try a different search term' : 'Orders will appear here when customers place them'}</p>
+                        <p>${subMessage}</p>
                     </div>
                 `;
                 return;
@@ -956,9 +1284,20 @@
                         </button>
                     `;
                 case 'completed':
+                    // Show PAID badge for finalized orders, buttons for unpaid
+                    if (order.finalized) {
+                        return `
+                            <div style="background: #d4edda; color: #155724; padding: 12px; border-radius: 8px; font-weight: bold; text-align: center;">
+                                ✅ PAID
+                            </div>
+                        `;
+                    }
                     return `
                         <button class="action-btn print-btn" onclick="printOrder('${order.firebaseKey}')">
                             🖨️ Print Receipt
+                        </button>
+                        <button class="action-btn finalize-btn" onclick="finalizePayment('${order.firebaseKey}')">
+                            💰 Finalize Payment
                         </button>
                     `;
                 default:
@@ -1002,6 +1341,22 @@
                 'timestamps/delivered': getCurrentManilaTimestamp()
             });
             console.log('✅ Order marked delivered in Firebase');
+        }
+
+        // Finalize payment - archives order and resets table
+        async function finalizePayment(firebaseKey) {
+            const order = orders.find(o => o.firebaseKey === firebaseKey);
+            if (!order) return;
+            
+            if (confirm(`💰 Finalize payment for Order #${order.orderId}?\n\nTable ${order.tableNumber} will be reset for new customers.\n\nTotal: ₱${order.total.toFixed(2)}`)) {
+                const orderRef = ref(database, `orders/${firebaseKey}`);
+                await update(orderRef, {
+                    finalized: true,
+                    'timestamps/finalized': getCurrentManilaTimestamp()
+                });
+                console.log('✅ Payment finalized - table reset');
+                alert(`✅ Payment finalized!\n\nTable ${order.tableNumber} is now ready for new customers.`);
+            }
         }
 
         // Print order
@@ -1260,6 +1615,7 @@
         window.confirmOrder = confirmOrder;
         window.markReady = markReady;
         window.markDelivered = markDelivered;
+        window.finalizePayment = finalizePayment;
         window.printOrder = printOrder;
         window.exportOrders = exportOrders;
         
@@ -1284,6 +1640,181 @@
         
         window.searchOrders = searchOrders;
         window.clearSearch = clearSearch;
+        window.resolveAssistance = resolveAssistance;
+        
+        // Date filter functions
+        function filterByDate() {
+            const dateInput = document.getElementById('dateFilter');
+            const clearBtn = document.getElementById('clearDateBtn');
+            
+            selectedDate = dateInput.value;
+            
+            // Show/hide clear button
+            clearBtn.style.display = selectedDate ? 'block' : 'none';
+            
+            // Re-render with date filter
+            renderOrders();
+        }
+        
+        function clearDateFilter() {
+            selectedDate = null;
+            document.getElementById('dateFilter').value = '';
+            document.getElementById('clearDateBtn').style.display = 'none';
+            renderOrders();
+        }
+        
+        window.filterByDate = filterByDate;
+        window.clearDateFilter = clearDateFilter;
+
+        // Export modal functions
+        function openExportModal() {
+            const modal = document.getElementById('exportModal');
+            const today = new Date().toISOString().split('T')[0];
+            
+            // Set default dates (last 7 days to today)
+            const lastWeek = new Date();
+            lastWeek.setDate(lastWeek.getDate() - 7);
+            document.getElementById('exportStartDate').value = lastWeek.toISOString().split('T')[0];
+            document.getElementById('exportEndDate').value = today;
+            
+            modal.classList.add('active');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('active');
+        }
+
+        async function exportToCSV() {
+            const startDate = document.getElementById('exportStartDate').value;
+            const endDate = document.getElementById('exportEndDate').value;
+            
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates!');
+                return;
+            }
+            
+            if (new Date(startDate) > new Date(endDate)) {
+                alert('Start date must be before end date!');
+                return;
+            }
+            
+            try {
+                // Get all orders from Firebase
+                const ordersRef = ref(database, 'orders');
+                const snapshot = await get(ordersRef);
+                
+                if (!snapshot.exists()) {
+                    alert('No orders found!');
+                    return;
+                }
+                
+                const allOrders = Object.entries(snapshot.val()).map(([key, val]) => ({ firebaseKey: key, ...val }));
+                
+                // Filter by date range
+                const startDateObj = new Date(startDate);
+                startDateObj.setHours(0, 0, 0, 0);
+                
+                const endDateObj = new Date(endDate);
+                endDateObj.setHours(23, 59, 59, 999);
+                
+                const filteredOrders = allOrders.filter(order => {
+                    const orderDateObj = new Date(order.timestamps.submitted);
+                    return orderDateObj >= startDateObj && orderDateObj <= endDateObj;
+                });
+                
+                if (filteredOrders.length === 0) {
+                    alert(`No orders found between ${startDate} and ${endDate}`);
+                    return;
+                }
+                
+                // Helper functions for formatting
+                function formatDuration(startTime, endTime) {
+                    if (!startTime || !endTime) return '';
+                    const start = new Date(startTime);
+                    const end = new Date(endTime);
+                    const diffMs = end - start;
+                    const mins = Math.floor(diffMs / 60000);
+                    const secs = Math.floor((diffMs % 60000) / 1000);
+                    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                }
+                
+                function formatDate(isoString) {
+                    if (!isoString) return '';
+                    const date = new Date(isoString);
+                    // ISO format: YYYY-MM-DD
+                    return date.toISOString().split('T')[0];
+                }
+                
+                function formatTime(isoString) {
+                    if (!isoString) return '';
+                    const date = new Date(isoString);
+                    return date.toLocaleTimeString('en-US', {
+                        timeZone: 'Asia/Manila',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    });
+                }
+                
+                // Generate CSV with durations
+                let csv = 'Order ID,Table,Date,Time,Status,Wait Time,Cook Time,Serve Time,Total Time,Revenue,Items\n';
+                
+                let totalRevenue = 0;
+                
+                filteredOrders.forEach(order => {
+                    const itemsList = order.items.map(item => 
+                        `${item.quantity}x ${item.name}${item.variation ? ' (' + item.variation + ')' : ''}`
+                    ).join(', ');
+                    
+                    const waitTime = formatDuration(order.timestamps.submitted, order.timestamps.confirmed);
+                    const cookTime = formatDuration(order.timestamps.confirmed, order.timestamps.ready);
+                    const serveTime = formatDuration(order.timestamps.ready, order.timestamps.delivered);
+                    const totalTime = formatDuration(order.timestamps.submitted, order.timestamps.delivered);
+                    
+                    const row = [
+                        order.orderId,
+                        order.tableNumber,
+                        formatDate(order.timestamps.submitted),
+                        formatTime(order.timestamps.submitted),
+                        order.status,
+                        waitTime,
+                        cookTime,
+                        serveTime,
+                        totalTime,
+                        order.total.toFixed(2),
+                        `"${itemsList}"`
+                    ].join(',');
+                    
+                    csv += row + '\n';
+                    totalRevenue += order.total;
+                });
+                
+                // Add TOTAL row
+                csv += `,,,,,,,,TOTAL:,${totalRevenue.toFixed(2)},\n`;
+                
+                // Download CSV with UTF-8 BOM for proper Excel encoding
+                const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ying-ying-orders-${startDate}-to-${endDate}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                closeExportModal();
+                alert(`✅ Exported ${filteredOrders.length} orders!`);
+                
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Failed to export orders. Please try again!');
+            }
+        }
+
+        window.openExportModal = openExportModal;
+        window.closeExportModal = closeExportModal;
+        window.exportToCSV = exportToCSV;
     </script>
 </body>
 </html>
