@@ -1420,19 +1420,27 @@
                 const existingOrders = snapshot.exists() ? Object.values(snapshot.val()) : [];
                 const existingOrdersWithKeys = snapshot.exists() ? Object.entries(snapshot.val()).map(([key, val]) => ({ firebaseKey: key, ...val })) : [];
                 
+                console.log('📋 ALL ORDERS FROM FIREBASE:', existingOrdersWithKeys.length);
+                console.log('🎯 CURRENT TABLE:', tableNumber, '(type:', typeof tableNumber, ')');
+                
                 // Check if table has ACTIVE orders (not finalized/archived)
                 // Ensure tableNumber comparison works (both as strings)
-                const activeOrderFromTable = existingOrdersWithKeys.find(o => 
-                    String(o.tableNumber) === String(tableNumber) && 
-                    !o.finalized && 
-                    (o.status === 'pending' || o.status === 'confirmed' || o.status === 'ready' || o.status === 'completed')
-                );
+                const activeOrderFromTable = existingOrdersWithKeys.find(o => {
+                    const tableMatch = String(o.tableNumber) === String(tableNumber);
+                    const notFinalized = !o.finalized;
+                    const activeStatus = (o.status === 'pending' || o.status === 'confirmed' || o.status === 'ready' || o.status === 'completed');
+                    
+                    console.log(`  Order ${o.orderId}: table=${o.tableNumber}(${typeof o.tableNumber}), finalized=${o.finalized}, status=${o.status}`);
+                    console.log(`    → tableMatch=${tableMatch}, notFinalized=${notFinalized}, activeStatus=${activeStatus}`);
+                    
+                    return tableMatch && notFinalized && activeStatus;
+                });
                 
-                console.log('🔍 MERGE CHECK:', {
+                console.log('🔍 MERGE CHECK RESULT:', {
                     tableNumber: tableNumber,
                     foundActiveOrder: !!activeOrderFromTable,
                     activeOrderId: activeOrderFromTable?.orderId,
-                    allTableOrders: existingOrdersWithKeys.filter(o => String(o.tableNumber) === String(tableNumber))
+                    willMerge: !!activeOrderFromTable
                 });
                 
                 if (activeOrderFromTable) {
