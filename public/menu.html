@@ -5,12 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ying Ying Tea House - Order</title>
     <style>
-                /* Fix sticky on Android */
-        body, html {
-            height: 100%;
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
         * {
             margin: 0;
             padding: 0;
@@ -1432,44 +1426,65 @@
             window.scrollTo({ top: 0, behavior: 'instant' });
         }
 
-        function handleScroll() {
-            console.log('🔍 SCROLL EVENT FIRED', {
-                pageYOffset: window.pageYOffset,
-                scrollTop: document.documentElement.scrollTop,
-                bodyScrollTop: document.body.scrollTop
-            });
-            const scrollBtn = document.getElementById('scrollTopBtn');
+        // SIMPLE HEADER COLLAPSE using IntersectionObserver
+        function initHeaderCollapse() {
             const header = document.querySelector('.header');
             const searchContainer = document.querySelector('.search-container');
             const categoryTabs = document.querySelector('.category-tabs');
-            const scrollPosition = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+            const scrollBtn = document.getElementById('scrollTopBtn');
             
-            // Scroll button visibility
-            if (scrollPosition > 300) {
-                scrollBtn.classList.add('visible');
-            } else {
-                scrollBtn.classList.remove('visible');
-            }
+            // Create a sentinel element to detect scroll
+            const sentinel = document.createElement('div');
+            sentinel.style.position = 'absolute';
+            sentinel.style.top = '50px';
+            sentinel.style.height = '1px';
+            sentinel.style.width = '100%';
+            sentinel.style.pointerEvents = 'none';
+            document.body.insertBefore(sentinel, document.body.firstChild);
             
-            // Header collapse
-            if (scrollPosition > 50) {
-                header.classList.add('collapsed');
-                // Update sticky positions dynamically when collapsed
+            // Observe the sentinel
+            const observer = new IntersectionObserver((entries) => {
+                const isScrolled = !entries[0].isIntersecting;
+                
+                if (isScrolled) {
+                    header.classList.add('collapsed');
+                } else {
+                    header.classList.remove('collapsed');
+                }
+                
+                // Always update sticky positions based on current header height
+                requestAnimationFrame(() => {
+                    const headerHeight = header.offsetHeight;
+                    const searchHeight = searchContainer.offsetHeight;
+                    searchContainer.style.top = headerHeight + 'px';
+                    categoryTabs.style.top = (headerHeight + searchHeight) + 'px';
+                });
+            }, { threshold: [0, 1] });
+            
+            observer.observe(sentinel);
+            
+            // Scroll-to-top button with simpler scroll detection
+            let scrollTimer;
+            window.addEventListener('scroll', () => {
+                clearTimeout(scrollTimer);
+                scrollTimer = setTimeout(() => {
+                    const scrolled = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+                    if (scrolled > 300) {
+                        scrollBtn.classList.add('visible');
+                    } else {
+                        scrollBtn.classList.remove('visible');
+                    }
+                }, 50);
+            }, { passive: true });
+            
+            // Initial position update
+            requestAnimationFrame(() => {
                 const headerHeight = header.offsetHeight;
+                const searchHeight = searchContainer.offsetHeight;
                 searchContainer.style.top = headerHeight + 'px';
-                categoryTabs.style.top = (headerHeight + searchContainer.offsetHeight) + 'px';
-            } else {
-                header.classList.remove('collapsed');
-                // Reset to original positions
-                const headerHeight = header.offsetHeight;
-                searchContainer.style.top = headerHeight + 'px';
-                categoryTabs.style.top = (headerHeight + searchContainer.offsetHeight) + 'px';
-            }
+                categoryTabs.style.top = (headerHeight + searchHeight) + 'px';
+            });
         }
-
-        // Listen to both scroll events for desktop and mobile
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        window.addEventListener('touchmove', handleScroll, { passive: true });
 
         // Make functions global
         window.scrollToCategory = scrollToCategory;
@@ -1529,8 +1544,8 @@
         window.closeAssistanceModal = closeAssistanceModal;
         window.requestAssistance = requestAssistance;
 
-        // Initialize sticky positions on load
-        handleScroll();
+        // Initialize header collapse system
+        initHeaderCollapse();
 
         init();
     </script>
