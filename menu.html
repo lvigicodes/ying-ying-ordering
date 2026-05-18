@@ -1421,10 +1421,11 @@
             window.scrollTo({ top: 0, behavior: 'instant' });
         }
 
-        // Show/hide scroll button AND collapse header based on scroll position
         function handleScroll() {
             const scrollBtn = document.getElementById('scrollTopBtn');
             const header = document.querySelector('.header');
+            const searchContainer = document.querySelector('.search-container');
+            const categoryTabs = document.querySelector('.category-tabs');
             const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
             
             // Scroll button visibility
@@ -1437,8 +1438,16 @@
             // Header collapse
             if (scrollPosition > 50) {
                 header.classList.add('collapsed');
+                // Update sticky positions dynamically when collapsed
+                const headerHeight = header.offsetHeight;
+                searchContainer.style.top = headerHeight + 'px';
+                categoryTabs.style.top = (headerHeight + searchContainer.offsetHeight) + 'px';
             } else {
                 header.classList.remove('collapsed');
+                // Reset to original positions
+                const headerHeight = header.offsetHeight;
+                searchContainer.style.top = headerHeight + 'px';
+                categoryTabs.style.top = (headerHeight + searchContainer.offsetHeight) + 'px';
             }
         }
 
