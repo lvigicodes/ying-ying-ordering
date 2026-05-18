@@ -1421,13 +1421,23 @@
             window.scrollTo({ top: 0, behavior: 'instant' });
         }
 
-        // Show/hide scroll button based on scroll position
+        // Show/hide scroll button AND collapse header based on scroll position
         window.addEventListener('scroll', function() {
             const scrollBtn = document.getElementById('scrollTopBtn');
+            const header = document.querySelector('.header');
+            
+            // Scroll button visibility
             if (window.pageYOffset > 300) {
                 scrollBtn.classList.add('visible');
             } else {
                 scrollBtn.classList.remove('visible');
+            }
+            
+            // Header collapse
+            if (window.pageYOffset > 50) {
+                header.classList.add('collapsed');
+            } else {
+                header.classList.remove('collapsed');
             }
         });
 
