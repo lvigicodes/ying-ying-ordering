@@ -1433,12 +1433,16 @@
         }
 
         function handleScroll() {
-            console.log('🔍 SCROLL EVENT FIRED', window.pageYOffset);
+            console.log('🔍 SCROLL EVENT FIRED', {
+                pageYOffset: window.pageYOffset,
+                scrollTop: document.documentElement.scrollTop,
+                bodyScrollTop: document.body.scrollTop
+            });
             const scrollBtn = document.getElementById('scrollTopBtn');
             const header = document.querySelector('.header');
             const searchContainer = document.querySelector('.search-container');
             const categoryTabs = document.querySelector('.category-tabs');
-            const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollPosition = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
             
             // Scroll button visibility
             if (scrollPosition > 300) {
