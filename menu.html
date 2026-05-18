@@ -619,6 +619,35 @@
             font-weight: bold;
             margin-top: 10px;
         }
+
+        /* SCROLL TO TOP BUTTON */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: #2d5016;
+            color: white;
+            border: 3px solid #ff6b35;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .scroll-to-top.visible {
+            display: flex;
+        }
+
+        .scroll-to-top:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body>
@@ -670,6 +699,11 @@
         <button class="help-btn" onclick="openAssistanceModal()">
             🙋
         </button>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <div class="scroll-to-top" id="scrollTopBtn" onclick="scrollToTop()">
+        ↑
     </div>
 
     <div class="assistance-modal" id="assistanceModal">
@@ -1382,8 +1416,24 @@
             setTimeout(() => notification.remove(), 2000);
         }
 
+        // Scroll to Top Button
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+
+        // Show/hide scroll button based on scroll position
+        window.addEventListener('scroll', function() {
+            const scrollBtn = document.getElementById('scrollTopBtn');
+            if (window.pageYOffset > 300) {
+                scrollBtn.classList.add('visible');
+            } else {
+                scrollBtn.classList.remove('visible');
+            }
+        });
+
         // Make functions global
         window.scrollToCategory = scrollToCategory;
+        window.scrollToTop = scrollToTop;
         window.toggleCategory = toggleCategory;
         window.addToCart = addToCart;
         window.selectVariation = selectVariation;
