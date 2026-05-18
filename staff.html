@@ -700,7 +700,7 @@
         <!-- DATE FILTER -->
         <div class="date-filter">
             <label>📅 Filter by Date:</label>
-            <input type="date" id="dateFilter" onchange="filterByDate()">
+            <input type="date" id="dateFilter" onchange="filterByDate()" value="">
             <button class="clear-date-btn" onclick="clearDateFilter()" id="clearDateBtn" style="display: none;">
                 Show All Dates
             </button>
@@ -822,13 +822,18 @@
             const pin = document.getElementById('pinInput').value;
             const errorMsg = document.getElementById('errorMsg');
             
-            if (pin === CORRECT_PIN) {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('dashboard').classList.add('active');
-                loadOrders();
-                updateDateTime();
-                setInterval(updateDateTime, 1000);
-            } else {
+                if (pin === CORRECT_PIN) {
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('dashboard').classList.add('active');
+                    
+                    // Set today's date as default filter
+                    const today = new Date().toISOString().split('T')[0];
+                    document.getElementById('dateFilter').value = today;
+                    
+                    loadOrders();
+                    updateDateTime();
+                    setInterval(updateDateTime, 1000);
+                } else {
                 errorMsg.style.display = 'block';
                 document.getElementById('pinInput').value = '';
                 setTimeout(() => {
@@ -949,19 +954,23 @@
             const container = document.getElementById('ordersContainer');
             const searchTerm = document.getElementById('orderSearch').value.toLowerCase();
             
-            // Filter by status
-            let filteredOrders = orders.filter(o => o.status === currentTab);
-            
-            // Filter by date if selected
-            if (selectedDate) {
-                filteredOrders = filteredOrders.filter(order => {
-                    const orderDate = new Date(order.timestamps.submitted)
-                        .toLocaleDateString('en-US', { timeZone: 'Asia/Manila' });
-                    const filterDate = new Date(selectedDate)
-                        .toLocaleDateString('en-US', { timeZone: 'Asia/Manila' });
-                    return orderDate === filterDate;
-                });
+        // Filter by status - show finalized orders ONLY in Completed tab
+        let filteredOrders = orders.filter(o => {
+            if (currentTab === 'completed') {
+                return o.status === 'completed'; // Show ALL completed orders (paid or unpaid)
             }
+            return o.status === currentTab && !o.finalized; // Hide finalized from other tabs
+        });
+
+        // SORT: Unpaid orders first, paid orders at bottom (only for Completed tab)
+        if (currentTab === 'completed') {
+            filteredOrders.sort((a, b) => {
+                // Unpaid (finalized=false) comes before paid (finalized=true)
+                if (!a.finalized && b.finalized) return -1;
+                if (a.finalized && !b.finalized) return 1;
+                return 0; // Keep original order if both same status
+            });
+        }
             
             // Filter by search term
             if (searchTerm) {

@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ying Ying Tea House - Order</title>
     <style>
+                /* Fix sticky on Android */
+        body, html {
+            height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -32,6 +38,11 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            transition: padding 0.3s ease;
+        }
+
+        .header.collapsed {
+            padding: 8px 15px;
         }
 
         .logo {
@@ -73,7 +84,7 @@
             background: white;
             border-bottom: 2px solid #eee;
             position: sticky;
-            top: 85px;
+            top: 44px; /* Collapsed header height */
             z-index: 99;
         }
 
@@ -99,7 +110,7 @@
             padding: 10px;
             gap: 8px;
             position: sticky;
-            top: 145px;
+            top: 104px; /* 44px collapsed header + 60px search bar */
             z-index: 98;
             border-bottom: 2px solid #eee;
             scrollbar-width: thin;
@@ -1085,7 +1096,7 @@
         function scrollToCategory(category) {
             const section = document.getElementById(`cat-${category}`);
             if (section) {
-                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                section.scrollIntoView({ behavior: 'instant', block: 'start' });
             }
         }
 
