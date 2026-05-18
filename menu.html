@@ -1422,24 +1422,29 @@
         }
 
         // Show/hide scroll button AND collapse header based on scroll position
-        window.addEventListener('scroll', function() {
+        function handleScroll() {
             const scrollBtn = document.getElementById('scrollTopBtn');
             const header = document.querySelector('.header');
+            const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
             
             // Scroll button visibility
-            if (window.pageYOffset > 300) {
+            if (scrollPosition > 300) {
                 scrollBtn.classList.add('visible');
             } else {
                 scrollBtn.classList.remove('visible');
             }
             
             // Header collapse
-            if (window.pageYOffset > 50) {
+            if (scrollPosition > 50) {
                 header.classList.add('collapsed');
             } else {
                 header.classList.remove('collapsed');
             }
-        });
+        }
+
+        // Listen to both scroll events for desktop and mobile
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        window.addEventListener('touchmove', handleScroll, { passive: true });
 
         // Make functions global
         window.scrollToCategory = scrollToCategory;
