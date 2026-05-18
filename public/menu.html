@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ying Ying Tea House - Order</title>
     <style>
+                /* Fix sticky on Android */
+        body, html {
+            height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -32,59 +38,11 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            transition: all 0.35s ease;
-            overflow: hidden;
+            transition: padding 0.3s ease;
         }
 
         .header.collapsed {
             padding: 8px 15px;
-            max-height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            text-align: left;
-        }
-
-        .header-full {
-            transition: opacity 0.35s ease;
-        }
-
-        .header.collapsed .header-full {
-            opacity: 0;
-            pointer-events: none;
-            position: absolute;
-        }
-
-        .header-mini {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.35s ease;
-        }
-
-        .header.collapsed .header-mini {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .header-mini-title {
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-        }
-
-        .header-mini-table {
-            color: #2d5016;
-            font-size: 13px;
-            background: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-weight: bold;
-            border: 2px solid #ff6b35;
         }
 
         .logo {
@@ -126,13 +84,8 @@
             background: white;
             border-bottom: 2px solid #eee;
             position: sticky;
-            top: 200px;
+            top: 0; /* Will be updated by JavaScript */
             z-index: 99;
-            transition: top 0.35s ease;
-        }
-
-        .header.collapsed ~ .search-container {
-            top: 44px;
         }
 
         .search-box {
@@ -157,7 +110,7 @@
             padding: 10px;
             gap: 8px;
             position: sticky;
-            top: 145px;
+            top: 0; /* Will be updated by JavaScript */
             z-index: 98;
             border-bottom: 2px solid #eee;
             scrollbar-width: thin;
@@ -670,29 +623,26 @@
         /* SCROLL TO TOP BUTTON */
         .scroll-to-top {
             position: fixed;
-            bottom: 120px;
+            bottom: 100px;
             right: 20px;
             width: 50px;
             height: 50px;
-            background: #ff6b35;
+            background: #2d5016;
             color: white;
-            border: none;
+            border: 3px solid #ff6b35;
             border-radius: 50%;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
-            z-index: 999;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
         }
 
         .scroll-to-top.visible {
-            opacity: 1;
-            visibility: visible;
+            display: flex;
         }
 
         .scroll-to-top:active {
@@ -701,16 +651,10 @@
     </style>
 </head>
 <body>
-    <div class="header" id="mainHeader">
-        <div class="header-full">
-            <div class="logo"></div>
-            <h1>YING YING TEA HOUSE</h1>
-            <p class="table-number">Table #<span id="tableNumber">?</span></p>
-        </div>
-        <div class="header-mini">
-            <span class="header-mini-title">YING YING TEA HOUSE</span>
-            <span class="header-mini-table">Table #<span id="tableNumberMini">?</span></span>
-        </div>
+    <div class="header">
+        <div class="logo"></div>
+        <h1>YING YING TEA HOUSE</h1>
+        <p class="table-number">Table #<span id="tableNumber">?</span></p>
     </div>
 
     <div class="search-container">
@@ -757,6 +701,11 @@
         </button>
     </div>
 
+    <!-- Scroll to Top Button -->
+    <div class="scroll-to-top" id="scrollTopBtn" onclick="scrollToTop()">
+        ↑
+    </div>
+
     <div class="assistance-modal" id="assistanceModal">
         <div class="assistance-content">
             <h3>🙋 Need Assistance?</h3>
@@ -792,11 +741,6 @@
         </div>
     </div>
 
-    <!-- SCROLL TO TOP BUTTON -->
-    <button class="scroll-to-top" id="scrollToTop" onclick="scrollToTop()">
-        ⬆️
-    </button>
-
     <script type="module">
         // Firebase imports
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
@@ -825,6 +769,17 @@
         window.firebaseGet = get;
 
         console.log('🔥 Firebase connected!');
+
+        // AUTO CACHE-BUSTING: Force fresh load on every visit
+        (function() {
+            const currentUrl = new URL(window.location.href);
+            const hasVersion = currentUrl.searchParams.has('_v');
+            
+            if (!hasVersion) {
+                currentUrl.searchParams.set('_v', Date.now());
+                window.location.replace(currentUrl.toString());
+            }
+        })();
 
         const menu = [
             // (Continue with your full menu array - keeping it the same)
@@ -1169,7 +1124,6 @@
         function init() {
             tableNumber = getTableNumber();
             document.getElementById('tableNumber').textContent = tableNumber;
-            document.getElementById('tableNumberMini').textContent = tableNumber;
             renderCategoryTabs();
             renderMenu();
             setupSearch();
@@ -1187,7 +1141,7 @@
         function scrollToCategory(category) {
             const section = document.getElementById(`cat-${category}`);
             if (section) {
-                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                section.scrollIntoView({ behavior: 'instant', block: 'start' });
             }
         }
 
@@ -1414,98 +1368,41 @@
             const orderDate = dateObj.toISOString().split('T')[0].replace(/-/g, '');
             
             try {
-                // Get existing orders from Firebase
+                // Get existing orders from Firebase to generate order number
                 const ordersRef = window.firebaseRef(window.firebaseDB, 'orders');
                 const snapshot = await window.firebaseGet(ordersRef);
                 const existingOrders = snapshot.exists() ? Object.values(snapshot.val()) : [];
-                const existingOrdersWithKeys = snapshot.exists() ? Object.entries(snapshot.val()).map(([key, val]) => ({ firebaseKey: key, ...val })) : [];
                 
-                console.log('📋 ALL ORDERS FROM FIREBASE:', existingOrdersWithKeys.length);
-                console.log('🎯 CURRENT TABLE:', tableNumber, '(type:', typeof tableNumber, ')');
+                const todayOrders = existingOrders.filter(o => o.orderId.includes(orderDate));
+                const orderNumber = (todayOrders.length + 1).toString().padStart(3, '0');
+                const orderId = `YY-${orderDate}-${orderNumber}`;
                 
-                // Check if table has ACTIVE orders (not finalized/archived)
-                // Ensure tableNumber comparison works (both as strings)
-                const activeOrderFromTable = existingOrdersWithKeys.find(o => {
-                    const tableMatch = String(o.tableNumber) === String(tableNumber);
-                    const notFinalized = !o.finalized;
-                    const activeStatus = (o.status === 'pending' || o.status === 'confirmed' || o.status === 'ready' || o.status === 'completed');
-                    
-                    console.log(`  Order ${o.orderId}: table=${o.tableNumber}(${typeof o.tableNumber}), finalized=${o.finalized}, status=${o.status}`);
-                    console.log(`    → tableMatch=${tableMatch}, notFinalized=${notFinalized}, activeStatus=${activeStatus}`);
-                    
-                    return tableMatch && notFinalized && activeStatus;
-                });
-                
-                console.log('🔍 MERGE CHECK RESULT:', {
+                const order = {
+                    orderId: orderId,
                     tableNumber: tableNumber,
-                    foundActiveOrder: !!activeOrderFromTable,
-                    activeOrderId: activeOrderFromTable?.orderId,
-                    willMerge: !!activeOrderFromTable
-                });
-                
-                if (activeOrderFromTable) {
-                    // MERGE: Add items to existing order
-                    const newItems = cart.map(item => ({
+                    items: cart.map(item => ({
                         name: item.name,
                         price: item.price,
                         quantity: item.quantity,
                         variation: item.selectedVariation ? item.selectedVariation.size : null,
                         station: item.station
-                    }));
-                    
-                    const updatedItems = [...activeOrderFromTable.items, ...newItems];
-                    const updatedTotal = updatedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                    
-                    // Update existing order
-                    const orderRef = window.firebaseRef(window.firebaseDB, `orders/${activeOrderFromTable.firebaseKey}`);
-                    await window.firebaseSet(orderRef, {
-                        ...activeOrderFromTable,
-                        items: updatedItems,
-                        total: updatedTotal,
-                        timestamps: {
-                            ...activeOrderFromTable.timestamps,
-                            lastUpdated: timestamp
-                        }
-                    });
-                    
-                    console.log('🔥 MERGED ORDER:', activeOrderFromTable.orderId);
-                    alert(`🐓 Added to Order #${activeOrderFromTable.orderId}!\n\n✨ Your additional items have been added.\n\nOur staff will confirm your order shortly. Thank you for dining at Ying Ying Tea House!`);
-                    
-                } else {
-                    // CREATE NEW ORDER: No active order for this table
-                    const todayOrders = existingOrders.filter(o => o.orderId.includes(orderDate));
-                    const orderNumber = (todayOrders.length + 1).toString().padStart(3, '0');
-                    const orderId = `YY-${orderDate}-${orderNumber}`;
-                    
-                    const order = {
-                        orderId: orderId,
-                        tableNumber: tableNumber,
-                        items: cart.map(item => ({
-                            name: item.name,
-                            price: item.price,
-                            quantity: item.quantity,
-                            variation: item.selectedVariation ? item.selectedVariation.size : null,
-                            station: item.station
-                        })),
-                        total: total,
-                        status: 'pending',
-                        finalized: false,
-                        timestamps: {
-                            submitted: timestamp,
-                            confirmed: null,
-                            ready: null,
-                            delivered: null,
-                            lastUpdated: timestamp
-                        }
-                    };
-                    
-                    // Save to Firebase
-                    const newOrderRef = window.firebasePush(ordersRef);
-                    await window.firebaseSet(newOrderRef, order);
-                    
-                    console.log('🔥 NEW ORDER SENT TO FIREBASE:', order);
-                    alert(`🐓 Order #${orderId} received!\n\n✨ Your delicious meal is being prepared.\n\nOur staff will confirm your order shortly. Thank you for dining at Ying Ying Tea House!`);
-                }
+                    })),
+                    total: total,
+                    status: 'pending',
+                    timestamps: {
+                        submitted: timestamp,
+                        confirmed: null,
+                        ready: null,
+                        delivered: null
+                    }
+                };
+                
+                // Save to Firebase
+                const newOrderRef = window.firebasePush(ordersRef);
+                await window.firebaseSet(newOrderRef, order);
+                
+                console.log('🔥 ORDER SENT TO FIREBASE:', order);
+                alert(`🐓 Order #${orderId} received!\n\n✨ Your delicious meal is being prepared.\n\nOur staff will confirm your order shortly. Thank you for dining at Ying Ying Tea House!`);
                 
                 cart = [];
                 updateCartButton();
@@ -1530,8 +1427,49 @@
             setTimeout(() => notification.remove(), 2000);
         }
 
+        // Scroll to Top Button
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+
+        function handleScroll() {
+            console.log('🔍 SCROLL EVENT FIRED', window.pageYOffset);
+            const scrollBtn = document.getElementById('scrollTopBtn');
+            const header = document.querySelector('.header');
+            const searchContainer = document.querySelector('.search-container');
+            const categoryTabs = document.querySelector('.category-tabs');
+            const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // Scroll button visibility
+            if (scrollPosition > 300) {
+                scrollBtn.classList.add('visible');
+            } else {
+                scrollBtn.classList.remove('visible');
+            }
+            
+            // Header collapse
+            if (scrollPosition > 50) {
+                header.classList.add('collapsed');
+                // Update sticky positions dynamically when collapsed
+                const headerHeight = header.offsetHeight;
+                searchContainer.style.top = headerHeight + 'px';
+                categoryTabs.style.top = (headerHeight + searchContainer.offsetHeight) + 'px';
+            } else {
+                header.classList.remove('collapsed');
+                // Reset to original positions
+                const headerHeight = header.offsetHeight;
+                searchContainer.style.top = headerHeight + 'px';
+                categoryTabs.style.top = (headerHeight + searchContainer.offsetHeight) + 'px';
+            }
+        }
+
+        // Listen to both scroll events for desktop and mobile
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        window.addEventListener('touchmove', handleScroll, { passive: true });
+
         // Make functions global
         window.scrollToCategory = scrollToCategory;
+        window.scrollToTop = scrollToTop;
         window.toggleCategory = toggleCategory;
         window.addToCart = addToCart;
         window.selectVariation = selectVariation;
@@ -1587,36 +1525,8 @@
         window.closeAssistanceModal = closeAssistanceModal;
         window.requestAssistance = requestAssistance;
 
-        // Header collapse and scroll to top button functionality
-        const mainHeader = document.getElementById('mainHeader');
-        
-        window.addEventListener('scroll', () => {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
-            // Collapse header after scrolling past 60px
-            if (scrollTop > 60) {
-                mainHeader.classList.add('collapsed');
-            } else {
-                mainHeader.classList.remove('collapsed');
-            }
-
-            // Scroll to top button visibility
-            const scrollBtn = document.getElementById('scrollToTop');
-            if (scrollTop > 300) {
-                scrollBtn.classList.add('visible');
-            } else {
-                scrollBtn.classList.remove('visible');
-            }
-        });
-
-        function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        }
-
-        window.scrollToTop = scrollToTop;
+        // Initialize sticky positions on load
+        handleScroll();
 
         init();
     </script>
