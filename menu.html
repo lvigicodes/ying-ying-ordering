@@ -84,7 +84,7 @@
             background: white;
             border-bottom: 2px solid #eee;
             position: sticky;
-            top: 44px; /* Collapsed header height */
+            top: 0; /* Will be updated by JavaScript */
             z-index: 99;
         }
 
@@ -110,7 +110,7 @@
             padding: 10px;
             gap: 8px;
             position: sticky;
-            top: 104px; /* 44px collapsed header + 60px search bar */
+            top: 0; /* Will be updated by JavaScript */
             z-index: 98;
             border-bottom: 2px solid #eee;
             scrollbar-width: thin;
@@ -1512,6 +1512,9 @@
         window.openAssistanceModal = openAssistanceModal;
         window.closeAssistanceModal = closeAssistanceModal;
         window.requestAssistance = requestAssistance;
+
+        // Initialize sticky positions on load
+        handleScroll();
 
         init();
     </script>
