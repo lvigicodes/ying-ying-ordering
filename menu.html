@@ -770,6 +770,17 @@
 
         console.log('🔥 Firebase connected!');
 
+        // AUTO CACHE-BUSTING: Force fresh load on every visit
+        (function() {
+            const currentUrl = new URL(window.location.href);
+            const hasVersion = currentUrl.searchParams.has('_v');
+            
+            if (!hasVersion) {
+                currentUrl.searchParams.set('_v', Date.now());
+                window.location.replace(currentUrl.toString());
+            }
+        })();
+
         const menu = [
             // (Continue with your full menu array - keeping it the same)
             { id: 1, name: "Kebab", price: 130, category: "Dimsum", station: "lower", image: "🥟" },
