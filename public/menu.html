@@ -1453,12 +1453,15 @@
                 }
                 
                 // Always update sticky positions based on current header height
-                requestAnimationFrame(() => {
-                    const headerHeight = header.offsetHeight;
-                    const searchHeight = searchContainer.offsetHeight;
-                    searchContainer.style.top = headerHeight + 'px';
-                    categoryTabs.style.top = (headerHeight + searchHeight) + 'px';
-                });
+                // Wait for CSS transition to complete before measuring
+                setTimeout(() => {
+                    requestAnimationFrame(() => {
+                        const headerHeight = header.offsetHeight;
+                        const searchHeight = searchContainer.offsetHeight;
+                        searchContainer.style.top = headerHeight + 'px';
+                        categoryTabs.style.top = (headerHeight + searchHeight) + 'px';
+                    });
+                }, 350); // 300ms transition + 50ms buffer
             }, { threshold: [0, 1] });
             
             observer.observe(sentinel);
@@ -1478,12 +1481,14 @@
             }, { passive: true });
             
             // Initial position update
-            requestAnimationFrame(() => {
-                const headerHeight = header.offsetHeight;
-                const searchHeight = searchContainer.offsetHeight;
-                searchContainer.style.top = headerHeight + 'px';
-                categoryTabs.style.top = (headerHeight + searchHeight) + 'px';
-            });
+            setTimeout(() => {
+                requestAnimationFrame(() => {
+                    const headerHeight = header.offsetHeight;
+                    const searchHeight = searchContainer.offsetHeight;
+                    searchContainer.style.top = headerHeight + 'px';
+                    categoryTabs.style.top = (headerHeight + searchHeight) + 'px';
+                });
+            }, 350);
         }
 
         // Make functions global
