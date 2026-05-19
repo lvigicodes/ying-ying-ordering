@@ -3,7 +3,7 @@ const net = require('net');
 class KitchenPrinter {
     constructor() {
         // Printer IP addresses
-        this.staffPrinterIP = '10.0.3.1';   // Staff counter (review & payment receipts)
+        this.staffPrinterIP = '192.168.68.91';   // Staff counter (review & payment receipts)
         this.upperPrinterIP = '10.0.3.2';   // Upper Kitchen (LogicOwl)
         this.lowerPrinterIP = '10.0.3.3';   // Lower Kitchen (LogicOwl)
         this.printerPort = 9100;
