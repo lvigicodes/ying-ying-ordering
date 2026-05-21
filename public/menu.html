@@ -414,6 +414,44 @@
             margin: 5px 0;
         }
 
+        .variation-section select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .variation-section select:focus {
+            outline: none;
+            border-color: #2d5016;
+        }
+
+        .addon-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .addon-option input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .addon-option label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
         .modal-buttons {
             display: flex;
             gap: 10px;
@@ -1174,40 +1212,64 @@
                 { size: "Medium", price: 480 },
                 { size: "Large", price: 960 }
             ], image: "🍲" },
-            { id: 120, name: "Coffee", price: null, category: "Drinks", station: "lower", variations: [
-                { size: "Hot", price: 65 },
-                { size: "Cold", price: 85 }
-            ], image: "☕" },
-            { id: 121, name: "Milk Tea", price: null, category: "Drinks", station: "lower", variations: [
-                { size: "Hot", price: 70 },
-                { size: "Cold", price: 85 }
-            ], image: "🧋" },
-            { id: 122, name: "Lemon Tea", price: null, category: "Drinks", station: "lower", variations: [
-                { size: "Hot", price: 70 },
-                { size: "Cold", price: 85 }
-            ], image: "🍋" },
-            { id: 123, name: "Fresh Lemonade", price: null, category: "Drinks", station: "lower", variations: [
-                { size: "Hot", price: 70 },
-                { size: "Cold", price: 85 }
-            ], image: "🍋" },
-            { id: 124, name: "Chocolate", price: null, category: "Drinks", station: "lower", variations: [
-                { size: "Hot", price: 100 },
-                { size: "Cold", price: 120 }
-            ], image: "🍫" },
-            { id: 125, name: "Coffee & Milk Tea", price: null, category: "Drinks", station: "lower", variations: [
-                { size: "Hot", price: 70 },
-                { size: "Cold", price: 85 }
-            ], image: "☕" },
+            { id: 120, name: "Coffee", price: null, category: "Drinks", station: "lower", variations: {
+                temperature: [
+                    { name: "Hot", price: 65 },
+                    { name: "Cold", price: 85 }
+                ]
+            }, image: "☕" },
+            { id: 121, name: "Milk Tea", price: null, category: "Drinks", station: "lower", variations: {
+                temperature: [
+                    { name: "Hot", price: 70 },
+                    { name: "Cold", price: 85 }
+                ]
+            }, image: "🧋" },
+            { id: 122, name: "Lemon Tea", price: null, category: "Drinks", station: "lower", variations: {
+                temperature: [
+                    { name: "Hot", price: 70 },
+                    { name: "Cold", price: 85 }
+                ]
+            }, image: "🍋" },
+            { id: 123, name: "Fresh Lemonade", price: null, category: "Drinks", station: "lower", variations: {
+                temperature: [
+                    { name: "Hot", price: 70 },
+                    { name: "Cold", price: 85 }
+                ]
+            }, image: "🍋" },
+            { id: 124, name: "Chocolate", price: null, category: "Drinks", station: "lower", variations: {
+                temperature: [
+                    { name: "Hot", price: 100 },
+                    { name: "Cold", price: 120 }
+                ]
+            }, image: "🍫" },
+            { id: 125, name: "Coffee & Milk Tea", price: null, category: "Drinks", station: "lower", variations: {
+                temperature: [
+                    { name: "Hot", price: 70 },
+                    { name: "Cold", price: 85 }
+                ]
+            }, image: "☕" },
             { id: 126, name: "Soy Milk", price: 55, category: "Drinks", station: "lower", image: "🥛" },
             { id: 127, name: "Sugarcane Juice", price: 80, category: "Drinks", station: "lower", image: "🌾" },
             { id: 128, name: "Calamansi Juice", price: 55, category: "Drinks", station: "lower", image: "🍋" },
-            { id: 129, name: "Yellow Mango Shake", price: 95, category: "Drinks", station: "lower", image: "🥭" },
-            { id: 130, name: "Green Mango Shake", price: 95, category: "Drinks", station: "lower", image: "🥭" },
-            { id: 131, name: "Watermelon Shake", price: 95, category: "Drinks", station: "lower", image: "🍉" },
-            { id: 132, name: "Pineapple Shake", price: 95, category: "Drinks", station: "lower", image: "🍍" },
-            { id: 133, name: "4 Season Shake", price: 100, category: "Drinks", station: "lower", image: "🍹" },
-            { id: 134, name: "Black Gulaman", price: 85, category: "Drinks", station: "lower", image: "🥤" },
-            { id: 135, name: "White Gulaman", price: 85, category: "Drinks", station: "lower", image: "🥤" },
+            { id: 129, name: "Fruit Shake", price: null, category: "Drinks", station: "lower", variations: {
+                flavor: [
+                    { name: "Mango", price: 95 },
+                    { name: "Green Mango", price: 95 },
+                    { name: "Watermelon", price: 95 },
+                    { name: "Pineapple", price: 95 },
+                    { name: "Four Season", price: 100 }
+                ],
+                addons: [
+                    { name: "With Sago", priceModifier: 5 }
+                ]
+            }, image: "🍹" },
+            { id: 134, name: "Gulaman", price: null, category: "Drinks", station: "lower", variations: {
+                flavor: [
+                    { name: "Black", price: 85 },
+                    { name: "White", price: 85 },
+                    { name: "Mix", price: 85 }
+                ]
+            }, image: "🥤" },
             { id: 136, name: "Softdrink in Can", price: 55, category: "Drinks", station: "lower", image: "🥤" },
             { id: 137, name: "Distilled Water", price: 25, category: "Drinks", station: "lower", image: "💧" },
             { id: 140, name: "Mango Sago", price: 320, category: "Dessert", station: "lower", image: "🥭" },
@@ -1222,16 +1284,126 @@
             { id: 158, name: "Soy Chicken Congee", price: 185, category: "Congee", station: "lower", image: "🍚" },
             { id: 159, name: "White Chicken Congee", price: 185, category: "Congee", station: "lower", image: "🍚" },
             { id: 160, name: "Asado Congee", price: 185, category: "Congee", station: "lower", image: "🍚" },
-            { id: 150, name: "Asado Toasted Mami", price: 195, category: "Mami", station: "lower", image: "🍜" },
-            { id: 151, name: "Roast Duck Toasted Mami", price: 220, category: "Mami", station: "lower", image: "🍜" },
-            { id: 161, name: "Wanton Mami", price: 185, category: "Mami", station: "lower", image: "🍜" },
-            { id: 162, name: "Dumpling Mami", price: 185, category: "Mami", station: "lower", image: "🍜" },
-            { id: 163, name: "Beef Brisket Mami", price: 185, category: "Mami", station: "lower", image: "🍜" },
-            { id: 164, name: "Gutchap Mami", price: 185, category: "Mami", station: "lower", image: "🍜" },
-            { id: 165, name: "Fish Cake Mami", price: 185, category: "Mami", station: "lower", image: "🍜" },
-            { id: 166, name: "Fish Ball Mami", price: 185, category: "Mami", station: "lower", image: "🍜" },
-            { id: 167, name: "Asado Mami", price: 185, category: "Mami", station: "lower", image: "🍜" },
-            { id: 168, name: "Roast Duck Mami", price: 210, category: "Mami", station: "lower", image: "🍜" },
+            { id: 150, name: "Asado Mami", price: null, category: "Mami", station: "lower", variations: {
+                size: [{ name: "Regular", price: 185 }],
+                noodle: [
+                    { name: "Egg Noodle", priceModifier: 0 },
+                    { name: "Bihon", priceModifier: 0 },
+                    { name: "Hofan", priceModifier: 0 }
+                ],
+                style: [
+                    { name: "Original", priceModifier: 0 },
+                    { name: "Toasted", priceModifier: 10 }
+                ],
+                addons: [
+                    { name: "Extra Soup", priceModifier: 0 }
+                ]
+            }, image: "🍜" },
+            { id: 151, name: "Roast Duck Mami", price: null, category: "Mami", station: "lower", variations: {
+                size: [{ name: "Regular", price: 210 }],
+                noodle: [
+                    { name: "Egg Noodle", priceModifier: 0 },
+                    { name: "Bihon", priceModifier: 0 },
+                    { name: "Hofan", priceModifier: 0 }
+                ],
+                style: [
+                    { name: "Original", priceModifier: 0 },
+                    { name: "Toasted", priceModifier: 10 }
+                ],
+                addons: [
+                    { name: "Extra Soup", priceModifier: 0 }
+                ]
+            }, image: "🍜" },
+            { id: 161, name: "Wanton Mami", price: null, category: "Mami", station: "lower", variations: {
+                size: [{ name: "Regular", price: 185 }],
+                noodle: [
+                    { name: "Egg Noodle", priceModifier: 0 },
+                    { name: "Bihon", priceModifier: 0 },
+                    { name: "Hofan", priceModifier: 0 }
+                ],
+                style: [
+                    { name: "Original", priceModifier: 0 },
+                    { name: "Toasted", priceModifier: 10 }
+                ],
+                addons: [
+                    { name: "Extra Soup", priceModifier: 0 }
+                ]
+            }, image: "🍜" },
+            { id: 162, name: "Dumpling Mami", price: null, category: "Mami", station: "lower", variations: {
+                size: [{ name: "Regular", price: 185 }],
+                noodle: [
+                    { name: "Egg Noodle", priceModifier: 0 },
+                    { name: "Bihon", priceModifier: 0 },
+                    { name: "Hofan", priceModifier: 0 }
+                ],
+                style: [
+                    { name: "Original", priceModifier: 0 },
+                    { name: "Toasted", priceModifier: 10 }
+                ],
+                addons: [
+                    { name: "Extra Soup", priceModifier: 0 }
+                ]
+            }, image: "🍜" },
+            { id: 163, name: "Beef Brisket Mami", price: null, category: "Mami", station: "lower", variations: {
+                size: [{ name: "Regular", price: 185 }],
+                noodle: [
+                    { name: "Egg Noodle", priceModifier: 0 },
+                    { name: "Bihon", priceModifier: 0 },
+                    { name: "Hofan", priceModifier: 0 }
+                ],
+                style: [
+                    { name: "Original", priceModifier: 0 },
+                    { name: "Toasted", priceModifier: 10 }
+                ],
+                addons: [
+                    { name: "Extra Soup", priceModifier: 0 }
+                ]
+            }, image: "🍜" },
+            { id: 164, name: "Gutchap Mami", price: null, category: "Mami", station: "lower", variations: {
+                size: [{ name: "Regular", price: 185 }],
+                noodle: [
+                    { name: "Egg Noodle", priceModifier: 0 },
+                    { name: "Bihon", priceModifier: 0 },
+                    { name: "Hofan", priceModifier: 0 }
+                ],
+                style: [
+                    { name: "Original", priceModifier: 0 },
+                    { name: "Toasted", priceModifier: 10 }
+                ],
+                addons: [
+                    { name: "Extra Soup", priceModifier: 0 }
+                ]
+            }, image: "🍜" },
+            { id: 165, name: "Fish Cake Mami", price: null, category: "Mami", station: "lower", variations: {
+                size: [{ name: "Regular", price: 185 }],
+                noodle: [
+                    { name: "Egg Noodle", priceModifier: 0 },
+                    { name: "Bihon", priceModifier: 0 },
+                    { name: "Hofan", priceModifier: 0 }
+                ],
+                style: [
+                    { name: "Original", priceModifier: 0 },
+                    { name: "Toasted", priceModifier: 10 }
+                ],
+                addons: [
+                    { name: "Extra Soup", priceModifier: 0 }
+                ]
+            }, image: "🍜" },
+            { id: 166, name: "Fish Ball Mami", price: null, category: "Mami", station: "lower", variations: {
+                size: [{ name: "Regular", price: 185 }],
+                noodle: [
+                    { name: "Egg Noodle", priceModifier: 0 },
+                    { name: "Bihon", priceModifier: 0 },
+                    { name: "Hofan", priceModifier: 0 }
+                ],
+                style: [
+                    { name: "Original", priceModifier: 0 },
+                    { name: "Toasted", priceModifier: 10 }
+                ],
+                addons: [
+                    { name: "Extra Soup", priceModifier: 0 }
+                ]
+            }, image: "🍜" },
             { id: 170, name: "Sizzling Stuff Bean Curd", price: null, category: "Sizzling", station: "lower", variations: [
                 { size: "Small", price: 370 },
                 { size: "Medium", price: 555 },
@@ -1872,18 +2044,106 @@
         let currentQuantity = 1;
         let specialInstructions = '';
 
+        let currentSelections = {};
+
         function openVariationModal(item) {
             currentItem = item;
             selectedVariation = null;
             currentQuantity = 1;
             specialInstructions = '';
+            currentSelections = {};
             
             document.getElementById('variationItemName').textContent = item.name;
             
             let html = '';
             
-            // Size/variation selector (if item has variations)
-            if (item.variations && item.variations.length > 0) {
+            // Check if item has complex variations (object) or simple (array)
+            if (item.variations && typeof item.variations === 'object' && !Array.isArray(item.variations)) {
+                // COMPLEX VARIATIONS (Mami, Drinks with multiple selectors)
+                
+                // Size selector (if exists)
+                if (item.variations.size) {
+                    html += `<div class="variation-section">
+                        <label>Size:</label>
+                        <div class="variation-options">
+                            ${item.variations.size.map((v, i) => `
+                                <div class="variation-option" onclick="selectComplexVariation('size', ${i})">
+                                    <span>${v.name}</span>
+                                    <strong>₱${v.price}</strong>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`;
+                    currentSelections.size = 0; // Default to first
+                }
+                
+                // Noodle type (for Mami)
+                if (item.variations.noodle) {
+                    html += `<div class="variation-section">
+                        <label>Noodle Type:</label>
+                        <select id="noodleSelect" onchange="updateComplexPrice()">
+                            ${item.variations.noodle.map((v, i) => `
+                                <option value="${i}">${v.name}</option>
+                            `).join('')}
+                        </select>
+                    </div>`;
+                    currentSelections.noodle = 0;
+                }
+                
+                // Style (for Mami, Drinks)
+                if (item.variations.style) {
+                    html += `<div class="variation-section">
+                        <label>Style:</label>
+                        <select id="styleSelect" onchange="updateComplexPrice()">
+                            ${item.variations.style.map((v, i) => `
+                                <option value="${i}">${v.name}${v.priceModifier > 0 ? ' (+₱' + v.priceModifier + ')' : ''}</option>
+                            `).join('')}
+                        </select>
+                    </div>`;
+                    currentSelections.style = 0;
+                }
+                
+                // Temperature (for Drinks)
+                if (item.variations.temperature) {
+                    html += `<div class="variation-section">
+                        <label>Temperature:</label>
+                        <select id="temperatureSelect" onchange="updateComplexPrice()">
+                            ${item.variations.temperature.map((v, i) => `
+                                <option value="${i}">${v.name}</option>
+                            `).join('')}
+                        </select>
+                    </div>`;
+                    currentSelections.temperature = 0;
+                }
+                
+                // Flavor (for Drinks)
+                if (item.variations.flavor) {
+                    html += `<div class="variation-section">
+                        <label>Flavor:</label>
+                        <select id="flavorSelect" onchange="updateComplexPrice()">
+                            ${item.variations.flavor.map((v, i) => `
+                                <option value="${i}">${v.name}</option>
+                            `).join('')}
+                        </select>
+                    </div>`;
+                    currentSelections.flavor = 0;
+                }
+                
+                // Addons (checkboxes)
+                if (item.variations.addons) {
+                    html += `<div class="variation-section">
+                        <label>Add-ons:</label>
+                        ${item.variations.addons.map((v, i) => `
+                            <div class="addon-option">
+                                <input type="checkbox" id="addon${i}" onchange="updateComplexPrice()">
+                                <label for="addon${i}">${v.name}${v.priceModifier > 0 ? ' (+₱' + v.priceModifier + ')' : ''}</label>
+                            </div>
+                        `).join('')}
+                    </div>`;
+                }
+                
+            } else if (item.variations && item.variations.length > 0) {
+                // SIMPLE VARIATIONS (current system - size only)
                 html += `<div class="variation-section">
                     <label>Size:</label>
                     <div class="variation-options">
@@ -1914,7 +2174,7 @@
             </div>`;
             
             // Price display
-            const basePrice = item.variations ? item.variations[0].price : item.price;
+            const basePrice = getBasePrice(item);
             html += `<div class="modal-price">
                 Total: <strong id="modalPrice">₱${basePrice * currentQuantity}</strong>
             </div>`;
@@ -1923,10 +2183,90 @@
             document.getElementById('variationModal').classList.add('active');
         }
 
+        function getBasePrice(item) {
+            if (item.variations) {
+                if (Array.isArray(item.variations)) {
+                    return item.variations[0].price;
+                } else if (item.variations.size) {
+                    return item.variations.size[0].price;
+                } else if (item.price) {
+                    return item.price;
+                }
+            }
+            return item.price || 0;
+        }
+
+        function selectComplexVariation(type, index) {
+            currentSelections[type] = index;
+            document.querySelectorAll('.variation-option').forEach((el) => {
+                el.classList.remove('selected');
+            });
+            event.target.closest('.variation-option').classList.add('selected');
+            updateComplexPrice();
+        }
+
+        function updateComplexPrice() {
+            if (!currentItem.variations || Array.isArray(currentItem.variations)) {
+                return;
+            }
+            
+            let price = 0;
+            
+            // Base price from size
+            if (currentItem.variations.size && currentSelections.size !== undefined) {
+                price = currentItem.variations.size[currentSelections.size].price;
+            }
+            // Or from temperature (for drinks)
+            else if (currentItem.variations.temperature) {
+                const tempEl = document.getElementById('temperatureSelect');
+                if (tempEl) {
+                    const tempIndex = parseInt(tempEl.value);
+                    price = currentItem.variations.temperature[tempIndex].price;
+                }
+            }
+            // Or from flavor (for drinks/shakes)
+            else if (currentItem.variations.flavor) {
+                const flavorEl = document.getElementById('flavorSelect');
+                if (flavorEl) {
+                    const flavorIndex = parseInt(flavorEl.value);
+                    price = currentItem.variations.flavor[flavorIndex].price;
+                }
+            }
+            else if (currentItem.price) {
+                price = currentItem.price;
+            }
+            
+            // Add modifiers from other selectors
+            if (currentItem.variations.style) {
+                const styleEl = document.getElementById('styleSelect');
+                if (styleEl) {
+                    const styleIndex = parseInt(styleEl.value);
+                    price += currentItem.variations.style[styleIndex].priceModifier || 0;
+                }
+            }
+            
+            // Add addons
+            if (currentItem.variations.addons) {
+                currentItem.variations.addons.forEach((addon, i) => {
+                    const checkbox = document.getElementById(`addon${i}`);
+                    if (checkbox && checkbox.checked) {
+                        price += addon.priceModifier || 0;
+                    }
+                });
+            }
+            
+            document.getElementById('modalPrice').textContent = `₱${price * currentQuantity}`;
+        }
+
         function adjustQuantity(change) {
             currentQuantity = Math.max(1, currentQuantity + change);
             document.getElementById('modalQuantity').textContent = currentQuantity;
-            updateModalPrice();
+            
+            if (currentItem.variations && typeof currentItem.variations === 'object' && !Array.isArray(currentItem.variations)) {
+                updateComplexPrice();
+            } else {
+                updateModalPrice();
+            }
         }
 
         function updateModalPrice() {
@@ -1954,8 +2294,98 @@
             const instructionsEl = document.getElementById('specialInstructions');
             specialInstructions = instructionsEl ? instructionsEl.value.trim() : '';
             
-            // For items with variations
-            if (currentItem.variations && currentItem.variations.length > 0) {
+            let finalPrice = 0;
+            let variationDetails = {};
+            let variationDisplay = '';
+            
+            // COMPLEX VARIATIONS
+            if (currentItem.variations && typeof currentItem.variations === 'object' && !Array.isArray(currentItem.variations)) {
+                
+                // Build variation details and calculate price
+                if (currentItem.variations.size) {
+                    if (currentSelections.size === undefined) {
+                        alert('Please select a size');
+                        return;
+                    }
+                    const sizeOption = currentItem.variations.size[currentSelections.size];
+                    finalPrice = sizeOption.price;
+                    variationDetails.size = sizeOption.name;
+                    variationDisplay += sizeOption.name;
+                }
+                
+                if (currentItem.variations.temperature) {
+                    const tempEl = document.getElementById('temperatureSelect');
+                    const tempIndex = parseInt(tempEl.value);
+                    const tempOption = currentItem.variations.temperature[tempIndex];
+                    variationDetails.temperature = tempOption.name;
+                    if (!currentItem.variations.size) {
+                        finalPrice = tempOption.price;
+                        variationDisplay += tempOption.name;
+                    } else {
+                        variationDisplay += `, ${tempOption.name}`;
+                    }
+                }
+                
+                if (currentItem.variations.flavor) {
+                    const flavorEl = document.getElementById('flavorSelect');
+                    const flavorIndex = parseInt(flavorEl.value);
+                    const flavorOption = currentItem.variations.flavor[flavorIndex];
+                    variationDetails.flavor = flavorOption.name;
+                    if (!currentItem.variations.size && !currentItem.variations.temperature) {
+                        finalPrice = flavorOption.price;
+                        variationDisplay += flavorOption.name;
+                    } else {
+                        variationDisplay += `, ${flavorOption.name}`;
+                    }
+                }
+                
+                if (currentItem.variations.noodle) {
+                    const noodleEl = document.getElementById('noodleSelect');
+                    const noodleIndex = parseInt(noodleEl.value);
+                    variationDetails.noodle = currentItem.variations.noodle[noodleIndex].name;
+                    variationDisplay += `, ${variationDetails.noodle}`;
+                }
+                
+                if (currentItem.variations.style) {
+                    const styleEl = document.getElementById('styleSelect');
+                    const styleIndex = parseInt(styleEl.value);
+                    const styleOption = currentItem.variations.style[styleIndex];
+                    variationDetails.style = styleOption.name;
+                    variationDisplay += `, ${styleOption.name}`;
+                    finalPrice += styleOption.priceModifier || 0;
+                }
+                
+                if (currentItem.variations.addons) {
+                    const selectedAddons = [];
+                    currentItem.variations.addons.forEach((addon, i) => {
+                        const checkbox = document.getElementById(`addon${i}`);
+                        if (checkbox && checkbox.checked) {
+                            selectedAddons.push(addon.name);
+                            finalPrice += addon.priceModifier || 0;
+                        }
+                    });
+                    if (selectedAddons.length > 0) {
+                        variationDetails.addons = selectedAddons;
+                        variationDisplay += `, ${selectedAddons.join(', ')}`;
+                    }
+                }
+                
+                cart.push({
+                    ...currentItem,
+                    selectedVariationDetails: variationDetails,
+                    variationDisplay: variationDisplay,
+                    specialInstructions: specialInstructions,
+                    price: finalPrice,
+                    quantity: currentQuantity
+                });
+                
+                let msg = `Added ${currentQuantity}x ${currentItem.name} (${variationDisplay})`;
+                if (specialInstructions) msg += ` - ${specialInstructions}`;
+                showNotification(msg);
+                
+            }
+            // SIMPLE VARIATIONS (array - size only)
+            else if (currentItem.variations && Array.isArray(currentItem.variations)) {
                 if (selectedVariation === null) {
                     alert('Please select a size');
                     return;
@@ -1974,8 +2404,70 @@
                 let msg = `Added ${currentQuantity}x ${currentItem.name} (${variation.size})`;
                 if (specialInstructions) msg += ` - ${specialInstructions}`;
                 showNotification(msg);
-            } else {
-                // Items without variations (simple add)
+            }
+            // NO VARIATIONS
+            else {
+                cart.push({
+                    ...currentItem,
+                    specialInstructions: specialInstructions,
+                    quantity: currentQuantity
+                });
+                
+                let msg = `Added ${currentQuantity}x ${currentItem.name}`;
+                if (specialInstructions) msg += ` - ${specialInstructions}`;
+                showNotification(msg);
+            }
+            
+            updateCartButton();
+            closeVariationModal();
+        }
+                            selectedAddons.push(addon.name);
+                            finalPrice += addon.priceModifier || 0;
+                        }
+                    });
+                    if (selectedAddons.length > 0) {
+                        variationDetails.addons = selectedAddons;
+                        variationDisplay += `, ${selectedAddons.join(', ')}`;
+                    }
+                }
+                
+                cart.push({
+                    ...currentItem,
+                    selectedVariationDetails: variationDetails,
+                    variationDisplay: variationDisplay,
+                    specialInstructions: specialInstructions,
+                    price: finalPrice,
+                    quantity: currentQuantity
+                });
+                
+                let msg = `Added ${currentQuantity}x ${currentItem.name} (${variationDisplay})`;
+                if (specialInstructions) msg += ` - ${specialInstructions}`;
+                showNotification(msg);
+                
+            }
+            // SIMPLE VARIATIONS (array - size only)
+            else if (currentItem.variations && Array.isArray(currentItem.variations)) {
+                if (selectedVariation === null) {
+                    alert('Please select a size');
+                    return;
+                }
+                
+                const variation = currentItem.variations[selectedVariation];
+                
+                cart.push({
+                    ...currentItem,
+                    selectedVariation: variation,
+                    specialInstructions: specialInstructions,
+                    price: variation.price,
+                    quantity: currentQuantity
+                });
+                
+                let msg = `Added ${currentQuantity}x ${currentItem.name} (${variation.size})`;
+                if (specialInstructions) msg += ` - ${specialInstructions}`;
+                showNotification(msg);
+            }
+            // NO VARIATIONS
+            else {
                 cart.push({
                     ...currentItem,
                     specialInstructions: specialInstructions,
@@ -2271,4 +2763,4 @@
         init();
     </script>
 </body>
-</html>s
+</html>
