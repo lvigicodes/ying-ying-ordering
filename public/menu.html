@@ -2421,67 +2421,6 @@
             updateCartButton();
             closeVariationModal();
         }
-                            selectedAddons.push(addon.name);
-                            finalPrice += addon.priceModifier || 0;
-                        }
-                    });
-                    if (selectedAddons.length > 0) {
-                        variationDetails.addons = selectedAddons;
-                        variationDisplay += `, ${selectedAddons.join(', ')}`;
-                    }
-                }
-                
-                cart.push({
-                    ...currentItem,
-                    selectedVariationDetails: variationDetails,
-                    variationDisplay: variationDisplay,
-                    specialInstructions: specialInstructions,
-                    price: finalPrice,
-                    quantity: currentQuantity
-                });
-                
-                let msg = `Added ${currentQuantity}x ${currentItem.name} (${variationDisplay})`;
-                if (specialInstructions) msg += ` - ${specialInstructions}`;
-                showNotification(msg);
-                
-            }
-            // SIMPLE VARIATIONS (array - size only)
-            else if (currentItem.variations && Array.isArray(currentItem.variations)) {
-                if (selectedVariation === null) {
-                    alert('Please select a size');
-                    return;
-                }
-                
-                const variation = currentItem.variations[selectedVariation];
-                
-                cart.push({
-                    ...currentItem,
-                    selectedVariation: variation,
-                    specialInstructions: specialInstructions,
-                    price: variation.price,
-                    quantity: currentQuantity
-                });
-                
-                let msg = `Added ${currentQuantity}x ${currentItem.name} (${variation.size})`;
-                if (specialInstructions) msg += ` - ${specialInstructions}`;
-                showNotification(msg);
-            }
-            // NO VARIATIONS
-            else {
-                cart.push({
-                    ...currentItem,
-                    specialInstructions: specialInstructions,
-                    quantity: currentQuantity
-                });
-                
-                let msg = `Added ${currentQuantity}x ${currentItem.name}`;
-                if (specialInstructions) msg += ` - ${specialInstructions}`;
-                showNotification(msg);
-            }
-            
-            updateCartButton();
-            closeVariationModal();
-        }
 
         function closeVariationModal() {
             document.getElementById('variationModal').classList.remove('active');
