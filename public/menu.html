@@ -2517,8 +2517,7 @@
                 // CHECK FOR EXISTING OPEN ORDER FOR SAME TABLE
                 const existingEntry = existingOrders.find(([key, order]) => 
                     order.tableNumber === tableNumber && 
-                    order.finalized !== true &&
-                    (order.status === 'pending' || order.status === 'confirmed')
+                    order.finalized !== true
                 );
                 
                 if (existingEntry) {
@@ -2553,6 +2552,7 @@
                         ...existingOrder,
                         items: mergedItems,
                         total: mergedTotal,
+                        status: 'pending',
                         timestamps: {
                             ...existingOrder.timestamps,
                             lastUpdated: timestamp
