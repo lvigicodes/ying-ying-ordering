@@ -1080,12 +1080,18 @@
             const container = document.getElementById('ordersContainer');
             const searchTerm = document.getElementById('orderSearch').value.toLowerCase();
             
-            // Filter by status - show finalized orders ONLY in Completed tab
+            // Filter by status
             let filteredOrders = orders.filter(o => {
                 if (currentTab === 'completed') {
-                    return o.status === 'completed'; // Show ALL completed orders (paid or unpaid)
+                    return o.status === 'completed';
                 }
-                return o.status === currentTab && !o.finalized; // Hide finalized from other tabs
+                if (currentTab === 'pending') {
+                    // Show in pending tab if: status is pending OR has new pendingItems
+                    return (o.status === currentTab && !o.finalized) ||
+                           (o.pendingItems && o.pendingItems.length > 0 && !o.finalized);
+                }
+                return o.status === currentTab && !o.finalized &&
+                       (!o.pendingItems || o.pendingItems.length === 0);
             });
             
             // Filter by date if selected
@@ -1136,11 +1142,14 @@
             }
             
             filteredOrders.sort((a, b) => {
-                const timeA = new Date(a.timestamps.submitted);
-                const timeB = new Date(b.timestamps.submitted);
-                // For completed orders, show latest first (reverse chronological)
-                // For other statuses (pending/confirmed/ready), show oldest first
-                return currentTab === 'completed' ? timeB - timeA : timeA - timeB;
+                if (currentTab === 'completed') {
+                    // Unpaid first, then paid at bottom
+                    if (!a.finalized && b.finalized) return -1;
+                    if (a.finalized && !b.finalized) return 1;
+                    // Within same group, latest first
+                    return new Date(b.timestamps.submitted) - new Date(a.timestamps.submitted);
+                }
+                return new Date(a.timestamps.submitted) - new Date(b.timestamps.submitted);
             });
             
             container.innerHTML = filteredOrders.map(order => {
@@ -1149,11 +1158,25 @@
                 const cookDuration = calculateDuration(order.timestamps.confirmed, order.timestamps.ready);
                 const deliverDuration = calculateDuration(order.timestamps.ready, order.timestamps.delivered);
                 
+                // Get all items for display
+                const confirmedItems = order.confirmedItems || order.items || [];
+                const pendingItems = order.pendingItems || [];
+                const allItems = [...confirmedItems, ...pendingItems];
+                const totalQty = allItems.reduce((sum, i) => sum + i.quantity, 0);
+                const hasNewItems = pendingItems.length > 0;
+                
                 return `
-                    <div class="order-card ${order.status}">
+                    <div class="order-card ${order.status}${hasNewItems && order.status !== 'pending' ? ' has-new-items' : ''}">
                         <div class="order-header">
                             <div class="order-id">${order.orderId}</div>
-                            <div class="order-status ${order.status}">${order.status}</div>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                ${hasNewItems && order.status !== 'pending' ? `
+                                    <div style="background:#e74c3c; color:white; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">
+                                        ⚠️ ${pendingItems.reduce((s,i)=>s+i.quantity,0)} NEW
+                                    </div>
+                                ` : ''}
+                                <div class="order-status ${order.status}">${order.status}</div>
+                            </div>
                         </div>
                         
                         <div class="order-info">
@@ -1167,13 +1190,13 @@
                             </div>
                             <div class="info-item">
                                 <div class="info-label">Items</div>
-                                <div class="info-value">${order.items.reduce((sum, i) => sum + i.quantity, 0)}</div>
+                                <div class="info-value">${totalQty}</div>
                             </div>
                             <div class="info-item">
                                 <div class="info-label">Submitted</div>
                                 <div class="info-value">${formatManilaTime(order.timestamps.submitted)}</div>
                             </div>
-                            ${order.status === 'pending' ? `
+                            ${order.status === 'pending' || hasNewItems ? `
                             <div class="info-item">
                                 <div class="info-label">Waiting</div>
                                 <div class="info-value" style="color: #e74c3c;">${timeElapsed}</div>
@@ -1182,21 +1205,50 @@
                         </div>
                         
                         <div class="order-items">
-                            <h4>📋 Order Items</h4>
-                            ${order.items.map(item => `
-                                <div class="item-row">
-                                    <div class="item-name">
-                                        ${item.name}
-                                        ${item.variation ? `<span class="item-variation">(${item.variation})</span>` : ''}
-                                        <span class="station-badge ${item.station}">${item.station}</span>
+                            ${confirmedItems.length > 0 ? `
+                                <h4>✅ Confirmed Items</h4>
+                                ${confirmedItems.map(item => `
+                                    <div class="item-row">
+                                        <div class="item-name">
+                                            ${item.name}
+                                            ${item.variation ? `<span class="item-variation">(${item.variation})</span>` : ''}
+                                            <span class="station-badge ${item.station}">${item.station}</span>
+                                        </div>
+                                        <div class="item-quantity">×${item.quantity}</div>
+                                        <div class="item-price">₱${item.price * item.quantity}</div>
                                     </div>
-                                    <div class="item-quantity">×${item.quantity}</div>
-                                    <div class="item-price">₱${item.price * item.quantity}</div>
-                                </div>
-                            `).join('')}
+                                `).join('')}
+                            ` : ''}
+                            ${pendingItems.length > 0 ? `
+                                <h4 style="color:#e74c3c; margin-top:${confirmedItems.length > 0 ? '12px' : '0'};">⚠️ New Items (Pending)</h4>
+                                ${pendingItems.map(item => `
+                                    <div class="item-row" style="background:#fff5f5; border-left: 3px solid #e74c3c; padding-left:8px;">
+                                        <div class="item-name">
+                                            ${item.name}
+                                            ${item.variation ? `<span class="item-variation">(${item.variation})</span>` : ''}
+                                            <span class="station-badge ${item.station}">${item.station}</span>
+                                        </div>
+                                        <div class="item-quantity">×${item.quantity}</div>
+                                        <div class="item-price">₱${item.price * item.quantity}</div>
+                                    </div>
+                                `).join('')}
+                            ` : `
+                                <h4>📋 Order Items</h4>
+                                ${confirmedItems.length === 0 ? (order.items || []).map(item => `
+                                    <div class="item-row">
+                                        <div class="item-name">
+                                            ${item.name}
+                                            ${item.variation ? `<span class="item-variation">(${item.variation})</span>` : ''}
+                                            <span class="station-badge ${item.station}">${item.station}</span>
+                                        </div>
+                                        <div class="item-quantity">×${item.quantity}</div>
+                                        <div class="item-price">₱${item.price * item.quantity}</div>
+                                    </div>
+                                `).join('') : ''}
+                            `}
                         </div>
                         
-                        ${order.status !== 'pending' ? `
+                        ${order.status !== 'pending' && !hasNewItems ? `
                         <div class="order-timeline">
                             <div class="timeline-item">
                                 <span class="timeline-label">Submitted:</span>
@@ -1258,6 +1310,20 @@
 
         // Get action buttons based on status
         function getActionButtons(order) {
+            const hasNewItems = order.pendingItems && order.pendingItems.length > 0;
+            
+            // If order has new pending items (regardless of current status), show confirm button
+            if (hasNewItems) {
+                return `
+                    <button class="action-btn confirm-btn" onclick="confirmOrder('${order.firebaseKey}')">
+                        ✓ Confirm New Items
+                    </button>
+                    <button class="action-btn print-btn" onclick="printOrder('${order.firebaseKey}')">
+                        🖨️ Print
+                    </button>
+                `;
+            }
+            
             switch (order.status) {
                 case 'pending':
                     return `
@@ -1284,7 +1350,6 @@
                         </button>
                     `;
                 case 'completed':
-                    // Show PAID badge for finalized orders, buttons for unpaid
                     if (order.finalized) {
                         return `
                             <div style="background: #d4edda; color: #155724; padding: 12px; border-radius: 8px; font-weight: bold; text-align: center;">
@@ -1310,16 +1375,24 @@
             const order = orders.find(o => o.firebaseKey === firebaseKey);
             if (!order) return;
             
-            // Update status in Firebase
+            const pendingItems = order.pendingItems || [];
+            const confirmedItems = order.confirmedItems || order.items || [];
+            
+            // Move pendingItems into confirmedItems
+            const allConfirmedItems = [...confirmedItems, ...pendingItems];
+            
             const orderRef = ref(database, `orders/${firebaseKey}`);
             await update(orderRef, {
                 status: 'confirmed',
+                confirmedItems: allConfirmedItems,
+                pendingItems: [],
                 'timestamps/confirmed': getCurrentManilaTimestamp()
             });
-            console.log('✅ Order confirmed in Firebase');
+            console.log('✅ Order confirmed - pendingItems moved to confirmedItems');
             
-            // Automatically print split kitchen receipts
-            printKitchenReceipts(order);
+            // Print kitchen receipts for newly confirmed items only
+            const orderForPrint = { ...order, items: pendingItems.length > 0 ? pendingItems : allConfirmedItems };
+            printKitchenReceipts(orderForPrint);
             console.log('🖨️ Auto-printed kitchen receipts after confirmation');
         }
 
@@ -1401,7 +1474,8 @@
                 receipt += `ALL ITEMS:\n`;
                 receipt += `───────────────────────────────\n`;
                 
-                order.items.forEach(item => {
+                const allItemsForPrint = [...(order.confirmedItems || order.items || []), ...(order.pendingItems || [])];
+                allItemsForPrint.forEach(item => {
                     receipt += `${item.quantity}x ${item.name}`;
                     if (item.variation) receipt += ` (${item.variation})`;
                     receipt += `\n`;
@@ -1442,7 +1516,8 @@
                 receipt += `Time: ${formatManilaTime(order.timestamps.submitted)}\n`;
                 receipt += `───────────────────────────────\n`;
                 
-                order.items.forEach(item => {
+                const allItemsForPrint = [...(order.confirmedItems || order.items || []), ...(order.pendingItems || [])];
+                allItemsForPrint.forEach(item => {
                     receipt += `${item.quantity}x ${item.name}`;
                     if (item.variation) receipt += ` (${item.variation})`;
                     receipt += `\n`;
@@ -1477,8 +1552,9 @@
                 console.log('🌐 Browser mode - using browser print dialog');
                 
                 // Fallback: Split items by kitchen station
-                const upperKitchen = order.items.filter(item => item.station === 'upper');
-                const lowerKitchen = order.items.filter(item => item.station === 'lower');
+                const allItemsForKitchen = [...(order.confirmedItems || order.items || []), ...(order.pendingItems || [])];
+                const upperKitchen = allItemsForKitchen.filter(item => item.station === 'upper');
+                const lowerKitchen = allItemsForKitchen.filter(item => item.station === 'lower');
                 
                 console.log('═══════════════════════════════');
                 console.log('KITCHEN RECEIPT SPLIT:');

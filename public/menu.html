@@ -2508,8 +2508,17 @@
             const dateObj = new Date(date);
             const orderDate = dateObj.toISOString().split('T')[0].replace(/-/g, '');
             
+            const newItems = cart.map(item => ({
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                variation: item.selectedVariation ? item.selectedVariation.size : 
+                           item.variationDisplay ? item.variationDisplay : null,
+                specialInstructions: item.specialInstructions || null,
+                station: item.station
+            }));
+            
             try {
-                // Get existing orders from Firebase
                 const ordersRef = window.firebaseRef(window.firebaseDB, 'orders');
                 const snapshot = await window.firebaseGet(ordersRef);
                 const existingOrders = snapshot.exists() ? Object.entries(snapshot.val()) : [];
@@ -2521,38 +2530,22 @@
                 );
                 
                 if (existingEntry) {
-                    // MERGE into existing order
+                    // MERGE - add to pendingItems ONLY, NEVER touch confirmedItems
                     const [existingKey, existingOrder] = existingEntry;
-                    const mergedItems = [...existingOrder.items];
                     
-                    cart.forEach(newItem => {
-                        const match = mergedItems.find(i => 
-                            i.name === newItem.name && 
-                            (i.variation || null) === (newItem.selectedVariation ? newItem.selectedVariation.size : null)
-                        );
-                        if (match) {
-                            match.quantity += newItem.quantity;
-                        } else {
-                            mergedItems.push({
-                                name: newItem.name,
-                                price: newItem.price,
-                                quantity: newItem.quantity,
-                                variation: newItem.selectedVariation ? newItem.selectedVariation.size : 
-                                           newItem.variationDisplay ? newItem.variationDisplay : null,
-                                specialInstructions: newItem.specialInstructions || null,
-                                station: newItem.station
-                            });
-                        }
-                    });
+                    const confirmedItems = existingOrder.confirmedItems || existingOrder.items || [];
+                    const existingPendingItems = existingOrder.pendingItems || [];
+                    const updatedPendingItems = [...existingPendingItems, ...newItems];
                     
-                    const mergedTotal = mergedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                    const newTotal = [...confirmedItems, ...updatedPendingItems]
+                        .reduce((sum, item) => sum + (item.price * item.quantity), 0);
                     
                     const existingOrderRef = window.firebaseRef(window.firebaseDB, `orders/${existingKey}`);
                     await window.firebaseSet(existingOrderRef, {
                         ...existingOrder,
-                        items: mergedItems,
-                        total: mergedTotal,
-                        status: 'pending',
+                        confirmedItems: confirmedItems,
+                        pendingItems: updatedPendingItems,
+                        total: newTotal,
                         timestamps: {
                             ...existingOrder.timestamps,
                             lastUpdated: timestamp
@@ -2573,15 +2566,8 @@
                         orderId: orderId,
                         tableNumber: tableNumber,
                         finalized: false,
-                        items: cart.map(item => ({
-                            name: item.name,
-                            price: item.price,
-                            quantity: item.quantity,
-                            variation: item.selectedVariation ? item.selectedVariation.size : 
-                                       item.variationDisplay ? item.variationDisplay : null,
-                            specialInstructions: item.specialInstructions || null,
-                            station: item.station
-                        })),
+                        confirmedItems: [],
+                        pendingItems: newItems,
                         total: total,
                         status: 'pending',
                         timestamps: {
@@ -2607,7 +2593,8 @@
             }
         }
 
-        function showNotification(message) {
+
+                function showNotification(message) {
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed; top: 20px; right: 20px;
