@@ -864,8 +864,8 @@
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
         import { getDatabase, ref, push, set, get } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
-        // Firebase config
-        const firebaseConfig = {
+        // Firebase config - production
+        const PROD_FIREBASE_CONFIG = {
           apiKey: "AIzaSyAXb-7_W_0enqpkT3c8iEhtlTFTFet3Foc",
           authDomain: "ying-ying-ordering.firebaseapp.com",
           databaseURL: "https://ying-ying-ordering-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -874,6 +874,23 @@
           messagingSenderId: "624037327199",
           appId: "1:624037327199:web:4e9e38fd8cf16a5fdcc6ea"
         };
+
+        // Firebase config - staging
+        const STAGING_FIREBASE_CONFIG = {
+          apiKey: "AIzaSyBQLev_8W_UFAr_oAaOySUjmeUFLyUTajQ",
+          authDomain: "ying-ying-ordering-staging.firebaseapp.com",
+          databaseURL: "https://ying-ying-ordering-staging-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "ying-ying-ordering-staging",
+          storageBucket: "ying-ying-ordering-staging.firebasestorage.app",
+          messagingSenderId: "865566055595",
+          appId: "1:865566055595:web:1bdb565d30ff9880fd2bee"
+        };
+
+        // Only the exact production hostname uses prod Firebase. Everything else
+        // (Vercel previews, localhost, the Electron app pointed at staging) uses staging.
+        const IS_PRODUCTION = window.location.hostname === 'ying-ying-ordering.vercel.app';
+        const firebaseConfig = IS_PRODUCTION ? PROD_FIREBASE_CONFIG : STAGING_FIREBASE_CONFIG;
+        console.log(IS_PRODUCTION ? '🟢 Using PRODUCTION Firebase' : '🟡 Using STAGING Firebase');
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);

@@ -1,0 +1,39 @@
+{
+  "name": "ying-ying-staff-app",
+  "version": "1.0.0",
+  "description": "Ying Ying Tea House Staff Dashboard with Printer Support",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.yingying.staffapp",
+    "productName": "Ying Ying Staff",
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Ying Ying Staff"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "printer.js",
+      "printer-config.json",
+      "icon.ico"
+    ]
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "author": "Ying Ying Tea House",
+  "license": "MIT"
+}
