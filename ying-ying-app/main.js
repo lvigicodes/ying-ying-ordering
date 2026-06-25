@@ -10,7 +10,7 @@ const configPath = path.join(__dirname, 'printer-config.json');
 let config = {
     environment: 'production',
     productionURL: 'https://ying-ying-ordering.vercel.app/staff.html',
-    stagingURL: 'https://ying-ying-ordering-git-staging.vercel.app/staff.html',
+    stagingURL: 'https://ying-ying-ordering-git-staging-lvigiworks-2695s-projects.vercel.app/staff.html',
     staffPrinterIP: '192.168.68.91',
     upperPrinterIP: '192.168.68.92',
     lowerPrinterIP: '192.168.68.93',
