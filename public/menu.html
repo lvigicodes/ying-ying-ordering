@@ -862,7 +862,7 @@
     <script type="module">
         // Firebase imports
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getDatabase, ref, push, set, get } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+        import { getDatabase, ref, push, set, get, runTransaction } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
         // Firebase config - production
         const PROD_FIREBASE_CONFIG = {
@@ -902,6 +902,7 @@
         window.firebasePush = push;
         window.firebaseSet = set;
         window.firebaseGet = get;
+        window.firebaseRunTransaction = runTransaction;
 
         console.log('🔥 Firebase connected!');
 
@@ -2537,48 +2538,41 @@
             
             try {
                 const ordersRef = window.firebaseRef(window.firebaseDB, 'orders');
+
+                // Legacy fallback: orders created before the activeOrderByTable lock existed
+                // won't have a lock pointer yet. Find one so we adopt it instead of
+                // accidentally creating a duplicate order for an already-open table.
                 const snapshot = await window.firebaseGet(ordersRef);
                 const existingOrders = snapshot.exists() ? Object.entries(snapshot.val()) : [];
-                
-                // CHECK FOR EXISTING OPEN ORDER FOR SAME TABLE
-                const existingEntry = existingOrders.find(([key, order]) => 
-                    order.tableNumber === tableNumber && 
+                const legacyOpenEntry = existingOrders.find(([key, order]) =>
+                    order.tableNumber === tableNumber &&
                     order.finalized !== true
                 );
-                
-                if (existingEntry) {
-                    // MERGE - add to pendingItems ONLY, NEVER touch confirmedItems
-                    const [existingKey, existingOrder] = existingEntry;
-                    
-                    const confirmedItems = existingOrder.confirmedItems || existingOrder.items || [];
-                    const existingPendingItems = existingOrder.pendingItems || [];
-                    const updatedPendingItems = [...existingPendingItems, ...newItems];
-                    
-                    const newTotal = [...confirmedItems, ...updatedPendingItems]
-                        .reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                    
-                    const existingOrderRef = window.firebaseRef(window.firebaseDB, `orders/${existingKey}`);
-                    await window.firebaseSet(existingOrderRef, {
-                        ...existingOrder,
-                        confirmedItems: confirmedItems,
-                        pendingItems: updatedPendingItems,
-                        total: newTotal,
-                        timestamps: {
-                            ...existingOrder.timestamps,
-                            lastUpdated: timestamp
-                        }
-                    });
-                    
-                    console.log('🔀 ORDER MERGED into:', existingOrder.orderId);
-                    alert(`🐓 Added to Order #${existingOrder.orderId}!\n\n✨ Your additional items have been added to your existing order.\n\nThank you for dining at Ying Ying Tea House!`);
-                    
-                } else {
+                const legacyOpenKey = legacyOpenEntry ? legacyOpenEntry[0] : null;
+
+                // Reserve a key for a brand-new order, in case we end up needing one.
+                // push() only reserves the key locally - it doesn't write anything yet.
+                const candidateNewOrderRef = window.firebasePush(ordersRef);
+                const candidateNewOrderKey = candidateNewOrderRef.key;
+
+                // ATOMIC CLAIM: decide which order key "owns" this table right now.
+                // Firebase resolves concurrent transactions on the same path one at a
+                // time, so two near-simultaneous submissions can never both win this.
+                const lockRef = window.firebaseRef(window.firebaseDB, `activeOrderByTable/${tableNumber}`);
+                const lockResult = await window.firebaseRunTransaction(lockRef, (currentKey) => {
+                    if (currentKey) return currentKey;
+                    if (legacyOpenKey) return legacyOpenKey;
+                    return candidateNewOrderKey;
+                });
+                const winningKey = lockResult.snapshot.val();
+
+                if (winningKey === candidateNewOrderKey) {
                     // CREATE NEW ORDER
                     const allOrders = snapshot.exists() ? Object.values(snapshot.val()) : [];
                     const todayOrders = allOrders.filter(o => o.orderId && o.orderId.includes(orderDate));
                     const orderNumber = (todayOrders.length + 1).toString().padStart(3, '0');
                     const orderId = `YY-${orderDate}-${orderNumber}`;
-                    
+
                     const order = {
                         orderId: orderId,
                         tableNumber: tableNumber,
@@ -2592,14 +2586,44 @@
                             lastUpdated: timestamp
                         }
                     };
-                    
-                    const newOrderRef = window.firebasePush(ordersRef);
-                    await window.firebaseSet(newOrderRef, order);
-                    
+
+                    await window.firebaseSet(candidateNewOrderRef, order);
+
                     console.log('🔥 NEW ORDER SENT TO FIREBASE:', order);
                     alert(`🐓 Order #${orderId} received!\n\n✨ Your delicious meal is being prepared.\n\nOur staff will confirm your order shortly. Thank you for dining at Ying Ying Tea House!`);
+
+                } else {
+                    // MERGE - add to pendingItems ONLY, NEVER touch confirmedItems.
+                    // Also done as a transaction so two late submissions merging at
+                    // the same time can't overwrite each other's items.
+                    const existingOrderRef = window.firebaseRef(window.firebaseDB, `orders/${winningKey}`);
+                    let mergedOrder = null;
+
+                    await window.firebaseRunTransaction(existingOrderRef, (currentOrder) => {
+                        if (!currentOrder) return currentOrder;
+
+                        const confirmedItems = currentOrder.confirmedItems || currentOrder.items || [];
+                        const existingPendingItems = currentOrder.pendingItems || [];
+                        const updatedPendingItems = [...existingPendingItems, ...newItems];
+                        const newTotal = [...confirmedItems, ...updatedPendingItems]
+                            .reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+                        currentOrder.confirmedItems = confirmedItems;
+                        currentOrder.pendingItems = updatedPendingItems;
+                        currentOrder.total = newTotal;
+                        currentOrder.timestamps = {
+                            ...currentOrder.timestamps,
+                            lastUpdated: timestamp
+                        };
+
+                        mergedOrder = currentOrder;
+                        return currentOrder;
+                    });
+
+                    console.log('🔀 ORDER MERGED into:', mergedOrder ? mergedOrder.orderId : winningKey);
+                    alert(`🐓 Added to Order #${mergedOrder ? mergedOrder.orderId : ''}!\n\n✨ Your additional items have been added to your existing order.\n\nThank you for dining at Ying Ying Tea House!`);
                 }
-                
+
                 cart = [];
                 updateCartButton();
                 closeCartModal();

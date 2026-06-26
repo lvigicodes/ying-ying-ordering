@@ -1444,6 +1444,10 @@
                     finalized: true,
                     'timestamps/finalized': getCurrentManilaTimestamp()
                 });
+
+                // Release the table lock so the next order for this table gets a fresh order number
+                await update(ref(database), { [`activeOrderByTable/${order.tableNumber}`]: null });
+
                 console.log('✅ Payment finalized - table reset');
                 alert(`✅ Payment finalized!\n\nTable ${order.tableNumber} is now ready for new customers.`);
             }
