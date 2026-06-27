@@ -1,0 +1,13 @@
+{
+  "name": "ying-ying-seed-menu",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "seed:staging": "node seed.js staging",
+    "seed:production": "node seed.js production"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}
