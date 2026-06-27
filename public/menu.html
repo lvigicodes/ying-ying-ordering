@@ -43,7 +43,17 @@
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: linear-gradient(160deg, #2d5016 0%, #1a3d0f 60%, #12290a 100%);
+            /* If /welcome-photo.jpg exists, it shows with a dark tint over it for
+               text readability. If the file is missing, this layer is simply
+               skipped and the brand gradient underneath shows instead - so
+               dropping in a photo later needs no code changes. */
+            background-image:
+                url('/welcome-photo.jpg'),
+                linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
+                linear-gradient(160deg, #2d5016 0%, #1a3d0f 60%, #12290a 100%);
+            background-size: cover, cover, cover;
+            background-position: center, center, center;
+            background-repeat: no-repeat;
             z-index: 2000;
             display: flex;
             flex-direction: column;
