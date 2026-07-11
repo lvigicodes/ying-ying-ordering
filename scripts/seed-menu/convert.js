@@ -163,6 +163,7 @@ function convertItems(menuItems) {
             name: item.name,
             basePrice: item.price !== undefined ? item.price : null,
             station,
+            emoji: item.image || '🍽️',
             photoUrl: null,
             isAvailable: true,
             categories: [categorySlug],
