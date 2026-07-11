@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ying Ying - Menu Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+
+        /* LOGIN SCREEN */
+        .login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #2d5016 0%, #1a3d0f 100%);
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .login-box .logo {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .login-box h1 {
+            color: #2d5016;
+            margin-bottom: 10px;
+        }
+
+        .login-box p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .pin-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 24px;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            letter-spacing: 8px;
+        }
+
+        .pin-input:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: #ff6b35;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            background: #e55a28;
+        }
+
+        .error-msg {
+            color: #e74c3c;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* APP */
+        .app {
+            display: none;
+        }
+
+        .app.active {
+            display: block;
+        }
+
+        /* HEADER */
+        .header {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding-left: 50px; /* space for admin nav hamburger */
+        }
+
+        .header-left h1 {
+            color: #2d5016;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header-left p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: #ff6b35;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: #e55a28;
+        }
+
+        /* TABS */
+        .tabs {
+            max-width: 1200px;
+            margin: 20px auto 0;
+            padding: 0 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover {
+            color: #2d5016;
+        }
+
+        .tab.active {
+            color: #2d5016;
+            border-bottom-color: #ff6b35;
+        }
+
+        /* TAB CONTENT */
+        .tab-content-wrap {
+            max-width: 1200px;
+            margin: 0 auto 40px;
+            padding: 0 20px;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            border-radius: 0 10px 10px 10px;
+            padding: 20px;
+            min-height: 200px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .placeholder {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        @media (max-width: 600px) {
+            .tabs {
+                padding: 0 10px;
+            }
+            .tab {
+                padding: 10px 14px;
+                font-size: 14px;
+            }
+            .tab-content-wrap {
+                padding: 0 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- LOGIN SCREEN -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <div class="logo">🐓</div>
+            <h1>Ying Ying Menu Management</h1>
+            <p>Enter PIN to access</p>
+            <input type="password"
+                   class="pin-input"
+                   id="pinInput"
+                   maxlength="4"
+                   placeholder="••••"
+                   autofocus>
+            <button class="login-btn" onclick="login()">Access Menu Management</button>
+            <p class="error-msg" id="errorMsg">Incorrect PIN. Please try again.</p>
+        </div>
+    </div>
+
+    <!-- APP -->
+    <div class="app" id="app">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1>🍵 Menu Management</h1>
+                    <p>Ying Ying Tea House — Back Office</p>
+                </div>
+                <div class="header-right">
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="tabs">
+            <div class="tab active" id="tabBtnItems" onclick="switchTab('items')">Menu Items</div>
+            <div class="tab" id="tabBtnCategories" onclick="switchTab('categories')">Categories</div>
+        </div>
+
+        <!-- TAB CONTENT -->
+        <div class="tab-content-wrap">
+            <div class="tab-content active" id="tabItems">
+                <div class="placeholder">Loading...</div>
+            </div>
+            <div class="tab-content" id="tabCategories">
+                <div class="placeholder">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getDatabase, ref, get, set, update, remove, push, onValue } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+        // Firebase config - production
+        const PROD_FIREBASE_CONFIG = {
+          apiKey: "AIzaSyAXb-7_W_0enqpkT3c8iEhtlTFTFet3Foc",
+          authDomain: "ying-ying-ordering.firebaseapp.com",
+          databaseURL: "https://ying-ying-ordering-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "ying-ying-ordering",
+          storageBucket: "ying-ying-ordering.firebasestorage.app",
+          messagingSenderId: "624037327199",
+          appId: "1:624037327199:web:4e9e38fd8cf16a5fdcc6ea"
+        };
+
+        // Firebase config - staging
+        const STAGING_FIREBASE_CONFIG = {
+          apiKey: "AIzaSyBQLev_8W_UFAr_oAaOySUjmeUFLyUTajQ",
+          authDomain: "ying-ying-ordering-staging.firebaseapp.com",
+          databaseURL: "https://ying-ying-ordering-staging-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "ying-ying-ordering-staging",
+          storageBucket: "ying-ying-ordering-staging.firebasestorage.app",
+          messagingSenderId: "865566055595",
+          appId: "1:865566055595:web:1bdb565d30ff9880fd2bee"
+        };
+
+        // Only the exact production hostname uses prod Firebase. Everything else
+        // (Vercel previews, localhost, the Electron app pointed at staging) uses staging.
+        const IS_PRODUCTION = window.location.hostname === 'ying-ying-ordering.vercel.app';
+        const firebaseConfig = IS_PRODUCTION ? PROD_FIREBASE_CONFIG : STAGING_FIREBASE_CONFIG;
+        console.log(IS_PRODUCTION ? '🟢 Using PRODUCTION Firebase' : '🟡 Using STAGING Firebase');
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        console.log('🔥 Firebase connected to menu management!');
+
+        // Expose Firebase on window (same pattern as menu.html)
+        window.firebaseDB = database;
+        window.firebaseRef = ref;
+        window.firebaseGet = get;
+        window.firebaseSet = set;
+        window.firebaseUpdate = update;
+        window.firebaseRemove = remove;
+        window.firebasePush = push;
+        window.firebaseOnValue = onValue;
+
+        const CORRECT_PIN = '9875';
+
+        // ============================================================
+        // CONTRACT with /menu-management.js:
+        // After the PIN is accepted (Firebase is already initialized and
+        // exposed on window.firebase* above), this page calls
+        //   window.initMenuManagement && window.initMenuManagement()
+        // and also dispatches a 'menu-management-ready' event on document.
+        // menu-management.js should define window.initMenuManagement()
+        // and render into #tabItems and #tabCategories. switchTab() only
+        // toggles visibility; content rendering is menu-management.js's job.
+        // ============================================================
+
+        function startApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('app').classList.add('active');
+            if (window.initMenuManagement) {
+                window.initMenuManagement();
+            }
+            document.dispatchEvent(new CustomEvent('menu-management-ready'));
+        }
+
+        // Login
+        function login() {
+            const pin = document.getElementById('pinInput').value;
+            const errorMsg = document.getElementById('errorMsg');
+
+            if (pin === CORRECT_PIN) {
+                startApp();
+            } else {
+                errorMsg.style.display = 'block';
+                document.getElementById('pinInput').value = '';
+                setTimeout(() => {
+                    errorMsg.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('app').classList.remove('active');
+                document.getElementById('pinInput').value = '';
+            }
+        }
+
+        // Tab switching (visibility only)
+        function switchTab(tab) {
+            document.getElementById('tabBtnItems').classList.toggle('active', tab === 'items');
+            document.getElementById('tabBtnCategories').classList.toggle('active', tab === 'categories');
+            document.getElementById('tabItems').classList.toggle('active', tab === 'items');
+            document.getElementById('tabCategories').classList.toggle('active', tab === 'categories');
+        }
+
+        // Enter key submits PIN
+        document.getElementById('pinInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') login();
+        });
+
+        window.login = login;
+        window.logout = logout;
+        window.switchTab = switchTab;
+    </script>
+
+    <!-- Menu management logic (renders tab contents; see contract comment above) -->
+    <script type="module" src="/menu-management.js"></script>
+
+    <!-- Shared admin navigation -->
+    <script src="/admin-nav.js"></script>
+</body>
+</html>
